@@ -1,0 +1,43 @@
+{
+  "name": "campusops-frontend",
+  "version": "1.0.0",
+  "description": "CampusOps - Smart Campus Facilities & Service Management Platform (web client)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@mantine/charts": "^8.3.0",
+    "@mantine/core": "^8.3.0",
+    "@mantine/dates": "^8.3.0",
+    "@mantine/form": "^8.3.0",
+    "@mantine/hooks": "^8.3.0",
+    "@mantine/modals": "^8.3.18",
+    "@mantine/notifications": "^8.3.0",
+    "@tabler/icons-react": "^3.34.0",
+    "@tanstack/react-query": "^5.85.0",
+    "axios": "^1.11.0",
+    "dayjs": "^1.11.13",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router": "^7.8.0",
+    "recharts": "^2.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "postcss": "^8.5.0",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "~5.9.0",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.0"
+  }
+}

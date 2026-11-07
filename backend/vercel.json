@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm install",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "public",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "{dist/**,node_modules/swagger-ui-dist/**,node_modules/.prisma/client/**}"
+    }
+  },
+  "rewrites": [{ "source": "/api/(.*)", "destination": "/api" }],
+  "crons": [{ "path": "/api/jobs/daily", "schedule": "0 4 * * *" }]
+}

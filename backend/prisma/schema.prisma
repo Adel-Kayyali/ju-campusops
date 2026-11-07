@@ -1,0 +1,686 @@
+// =====================================================================
+//  CampusOps - Smart Campus Facilities & Service Management Platform
+//  Relational schema (PostgreSQL). Each model maps to one table
+//  (snake_case names via @@map / @map).
+// =====================================================================
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------
+//  Identity & access
+// ---------------------------------------------------------------------
+
+enum Role {
+  STUDENT
+  STAFF
+  TECHNICIAN
+  FACILITY_MANAGER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  role         Role
+  universityId String?  @unique @map("university_id")
+  phone        String?
+  department   String?
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  technicianProfile      TechnicianProfile?
+  lockerSubscriptions    LockerSubscription[]    @relation("SubscriptionStudent")
+  createdSubscriptions   LockerSubscription[]    @relation("SubscriptionCreatedBy")
+  endedSubscriptions     LockerSubscription[]    @relation("SubscriptionEndedBy")
+  receivedPayments       Payment[]               @relation("PaymentReceivedBy")
+  serviceRequests        ServiceRequest[]        @relation("RequestRequester")
+  requestStatusChanges   RequestStatusHistory[]
+  assignedWorkOrders     WorkOrder[]             @relation("WorkOrderTechnician")
+  createdWorkOrders      WorkOrder[]             @relation("WorkOrderCreatedBy")
+  feedbacks              RequestFeedback[]
+  notifications          Notification[]
+  auditLogs              AuditLog[]
+  stockMovements         StockMovement[]
+  requestedProcurements  ProcurementRequest[]    @relation("ProcurementRequestedBy")
+  decidedProcurements    ProcurementRequest[]    @relation("ProcurementDecidedBy")
+  uploadedAttachments    Attachment[]
+  completedTasks         WorkOrderTask[]         @relation("TaskCompletedBy")
+
+  @@index([role])
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------
+//  Campus locations
+// ---------------------------------------------------------------------
+
+enum RoomType {
+  CLASSROOM
+  LAB
+  OFFICE
+  LECTURE_HALL
+  RESTROOM
+  CORRIDOR
+  STORAGE
+  OTHER
+}
+
+model Building {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  campus    String   @default("Main Campus")
+  floors    Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  rooms               Room[]
+  assets              Asset[]
+  lockers             Locker[]
+  serviceRequests     ServiceRequest[]
+  technicianProfiles  TechnicianProfile[]
+
+  @@map("buildings")
+}
+
+model Room {
+  id         String   @id @default(uuid())
+  buildingId String   @map("building_id")
+  code       String
+  name       String
+  floor      Int      @default(0)
+  type       RoomType @default(OTHER)
+
+  building        Building         @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  assets          Asset[]
+  serviceRequests ServiceRequest[]
+
+  @@unique([buildingId, code])
+  @@map("rooms")
+}
+
+// ---------------------------------------------------------------------
+//  Student lockers
+// ---------------------------------------------------------------------
+
+enum LockerSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum SubscriptionStatus {
+  ACTIVE    // currently valid (or waiting for its start date / not yet released)
+  ENDED     // released by an administrator (normal end or early termination)
+  CANCELLED // cancelled before it started
+}
+
+enum PaymentMethod {
+  CASH
+}
+
+model Locker {
+  id                String     @id @default(uuid())
+  code              String     @unique
+  buildingId        String     @map("building_id")
+  floor             Int        @default(0)
+  zone              String
+  size              LockerSize @default(MEDIUM)
+  monthlyFee        Decimal    @map("monthly_fee") @db.Decimal(10, 2)
+  isOutOfService    Boolean    @default(false) @map("is_out_of_service")
+  outOfServiceNote  String?    @map("out_of_service_note")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  building      Building             @relation(fields: [buildingId], references: [id])
+  subscriptions LockerSubscription[]
+
+  @@index([buildingId])
+  @@map("lockers")
+}
+
+/// NOTE: the migration adds a PostgreSQL EXCLUDE constraint that forbids two
+/// ACTIVE subscriptions of the same locker with overlapping [start_date, end_date].
+model LockerSubscription {
+  id          String             @id @default(uuid())
+  lockerId    String             @map("locker_id")
+  studentId   String             @map("student_id")
+  startDate   DateTime           @map("start_date") @db.Date
+  endDate     DateTime           @map("end_date") @db.Date
+  status      SubscriptionStatus @default(ACTIVE)
+  notes       String?
+  createdById String             @map("created_by_id")
+  endedAt     DateTime?          @map("ended_at")
+  endedById   String?            @map("ended_by_id")
+  endReason   String?            @map("end_reason")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  locker    Locker    @relation(fields: [lockerId], references: [id])
+  student   User      @relation("SubscriptionStudent", fields: [studentId], references: [id])
+  createdBy User      @relation("SubscriptionCreatedBy", fields: [createdById], references: [id])
+  endedBy   User?     @relation("SubscriptionEndedBy", fields: [endedById], references: [id])
+  payments  Payment[]
+
+  @@index([lockerId, status])
+  @@index([studentId])
+  @@index([endDate])
+  @@map("locker_subscriptions")
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  subscriptionId String        @map("subscription_id")
+  amount         Decimal       @db.Decimal(10, 2)
+  method         PaymentMethod @default(CASH)
+  receiptNumber  String        @unique @map("receipt_number")
+  periodStart    DateTime      @map("period_start") @db.Date
+  periodEnd      DateTime      @map("period_end") @db.Date
+  receivedById   String        @map("received_by_id")
+  receivedAt     DateTime      @default(now()) @map("received_at")
+
+  subscription LockerSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  receivedBy   User               @relation("PaymentReceivedBy", fields: [receivedById], references: [id])
+
+  @@index([receivedAt])
+  @@map("payments")
+}
+
+// ---------------------------------------------------------------------
+//  Service requests
+// ---------------------------------------------------------------------
+
+enum RequestCategory {
+  ELECTRICAL
+  PLUMBING
+  HVAC
+  CLEANING
+  IT_NETWORK
+  FURNITURE
+  ELEVATOR
+  SAFETY
+  STRUCTURAL
+  OTHER
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Urgency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Priority {
+  P1
+  P2
+  P3
+  P4
+}
+
+enum ContactMethod {
+  IN_APP
+  EMAIL
+  PHONE
+}
+
+enum RequestStatus {
+  SUBMITTED
+  ACKNOWLEDGED
+  REJECTED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  VERIFIED
+  CLOSED
+}
+
+model ServiceRequest {
+  id               String          @id @default(uuid())
+  code             String          @unique
+  title            String
+  description      String
+  category         RequestCategory
+  severity         Severity
+  urgency          Urgency
+  priority         Priority
+  isSafetyRelated  Boolean         @default(false) @map("is_safety_related")
+  status           RequestStatus   @default(SUBMITTED)
+  buildingId       String          @map("building_id")
+  roomId           String?         @map("room_id")
+  assetId          String?         @map("asset_id")
+  locationDetails  String?         @map("location_details")
+  preferredContact ContactMethod   @default(IN_APP) @map("preferred_contact")
+  contactDetail    String?         @map("contact_detail")
+  requesterId      String          @map("requester_id")
+  responseDueAt    DateTime        @map("response_due_at")
+  resolutionDueAt  DateTime        @map("resolution_due_at")
+  acknowledgedAt   DateTime?       @map("acknowledged_at")
+  resolvedAt       DateTime?       @map("resolved_at")
+  closedAt         DateTime?       @map("closed_at")
+  rejectionReason  String?         @map("rejection_reason")
+  escalatedAt      DateTime?       @map("escalated_at")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  building      Building               @relation(fields: [buildingId], references: [id])
+  room          Room?                  @relation(fields: [roomId], references: [id])
+  asset         Asset?                 @relation(fields: [assetId], references: [id])
+  requester     User                   @relation("RequestRequester", fields: [requesterId], references: [id])
+  statusHistory RequestStatusHistory[]
+  attachments   Attachment[]
+  workOrders    WorkOrder[]
+  feedback      RequestFeedback?
+
+  @@index([status])
+  @@index([requesterId])
+  @@index([buildingId])
+  @@index([resolutionDueAt])
+  @@map("service_requests")
+}
+
+model RequestStatusHistory {
+  id          String         @id @default(uuid())
+  requestId   String         @map("request_id")
+  fromStatus  RequestStatus? @map("from_status")
+  toStatus    RequestStatus  @map("to_status")
+  note        String?
+  changedById String         @map("changed_by_id")
+  changedAt   DateTime       @default(now()) @map("changed_at")
+
+  request   ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  changedBy User           @relation(fields: [changedById], references: [id])
+
+  @@index([requestId])
+  @@map("request_status_history")
+}
+
+model RequestFeedback {
+  id          String   @id @default(uuid())
+  requestId   String   @unique @map("request_id")
+  rating      Int
+  comment     String?
+  submittedBy String   @map("submitted_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  request ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  author  User           @relation(fields: [submittedBy], references: [id])
+
+  @@map("request_feedback")
+}
+
+/// A file (photo / evidence) attached either to a service request or to a work order.
+model Attachment {
+  id           String   @id @default(uuid())
+  fileName     String   @map("file_name")
+  contentType  String   @map("content_type")
+  sizeBytes    Int      @map("size_bytes")
+  url          String
+  requestId    String?  @map("request_id")
+  workOrderId  String?  @map("work_order_id")
+  uploadedById String   @map("uploaded_by_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  request    ServiceRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  workOrder  WorkOrder?      @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  uploadedBy User            @relation(fields: [uploadedById], references: [id])
+
+  @@map("attachments")
+}
+
+// ---------------------------------------------------------------------
+//  Technicians & work orders
+// ---------------------------------------------------------------------
+
+model TechnicianProfile {
+  id             String            @id @default(uuid())
+  userId         String            @unique @map("user_id")
+  skills         RequestCategory[]
+  homeBuildingId String?           @map("home_building_id")
+  isAvailable    Boolean           @default(true) @map("is_available")
+  maxOpenOrders  Int               @default(5) @map("max_open_orders")
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  homeBuilding Building? @relation(fields: [homeBuildingId], references: [id])
+
+  @@map("technician_profiles")
+}
+
+enum WorkOrderType {
+  CORRECTIVE
+  PREVENTIVE
+}
+
+enum WorkOrderStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+  CANCELLED
+}
+
+enum TaskType {
+  INSPECTION
+  MATERIAL_APPROVAL
+  REPAIR
+  REQUESTER_CONFIRMATION
+  PREVENTIVE_CHECK
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  SKIPPED
+}
+
+model WorkOrder {
+  id           String          @id @default(uuid())
+  code         String          @unique
+  type         WorkOrderType
+  title        String
+  description  String?
+  priority     Priority
+  status       WorkOrderStatus @default(OPEN)
+  requestId    String?         @map("request_id")
+  assetId      String?         @map("asset_id")
+  scheduleId   String?         @map("schedule_id")
+  technicianId String?         @map("technician_id")
+  createdById  String?         @map("created_by_id")
+  dueAt        DateTime        @map("due_at")
+  startedAt    DateTime?       @map("started_at")
+  completedAt  DateTime?       @map("completed_at")
+  verifiedAt   DateTime?       @map("verified_at")
+  repairNotes  String?         @map("repair_notes")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  request      ServiceRequest?        @relation(fields: [requestId], references: [id])
+  asset        Asset?                 @relation(fields: [assetId], references: [id])
+  schedule     PreventiveSchedule?    @relation(fields: [scheduleId], references: [id])
+  technician   User?                  @relation("WorkOrderTechnician", fields: [technicianId], references: [id])
+  createdBy    User?                  @relation("WorkOrderCreatedBy", fields: [createdById], references: [id])
+  tasks        WorkOrderTask[]
+  materials    MaterialRequirement[]
+  attachments  Attachment[]
+  procurements ProcurementRequest[]
+  movements    StockMovement[]
+
+  @@index([status])
+  @@index([technicianId])
+  @@index([assetId])
+  @@map("work_orders")
+}
+
+model WorkOrderTask {
+  id            String     @id @default(uuid())
+  workOrderId   String     @map("work_order_id")
+  sequence      Int
+  type          TaskType
+  title         String
+  status        TaskStatus @default(PENDING)
+  notes         String?
+  completedAt   DateTime?  @map("completed_at")
+  completedById String?    @map("completed_by_id")
+
+  workOrder   WorkOrder       @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  completedBy User?           @relation("TaskCompletedBy", fields: [completedById], references: [id])
+  /// Tasks that must be DONE/SKIPPED before this task can start.
+  dependsOn   WorkOrderTask[] @relation("TaskDependencies")
+  requiredBy  WorkOrderTask[] @relation("TaskDependencies")
+
+  @@unique([workOrderId, sequence])
+  @@map("work_order_tasks")
+}
+
+// ---------------------------------------------------------------------
+//  Assets & preventive maintenance
+// ---------------------------------------------------------------------
+
+enum AssetType {
+  ELEVATOR
+  HVAC_UNIT
+  LAB_EQUIPMENT
+  PROJECTOR
+  GENERATOR
+  FIRE_SAFETY
+  NETWORK_DEVICE
+  PLUMBING_FIXTURE
+  FURNITURE
+  OTHER
+}
+
+enum AssetStatus {
+  OPERATIONAL
+  UNDER_MAINTENANCE
+  OUT_OF_SERVICE
+  RETIRED
+}
+
+enum IntervalUnit {
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+model Asset {
+  id             String      @id @default(uuid())
+  code           String      @unique
+  name           String
+  type           AssetType
+  status         AssetStatus @default(OPERATIONAL)
+  buildingId     String      @map("building_id")
+  roomId         String?     @map("room_id")
+  manufacturer   String?
+  model          String?
+  serialNumber   String?     @map("serial_number")
+  installDate    DateTime?   @map("install_date") @db.Date
+  warrantyExpiry DateTime?   @map("warranty_expiry") @db.Date
+  notes          String?
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  building        Building             @relation(fields: [buildingId], references: [id])
+  room            Room?                @relation(fields: [roomId], references: [id])
+  workOrders      WorkOrder[]
+  serviceRequests ServiceRequest[]
+  schedules       PreventiveSchedule[]
+
+  @@index([buildingId])
+  @@map("assets")
+}
+
+model PreventiveSchedule {
+  id                  String       @id @default(uuid())
+  assetId             String       @map("asset_id")
+  title               String
+  description         String?
+  intervalValue       Int          @map("interval_value")
+  intervalUnit        IntervalUnit @map("interval_unit")
+  nextDueDate         DateTime     @map("next_due_date") @db.Date
+  leadDays            Int          @default(7) @map("lead_days")
+  priority            Priority     @default(P3)
+  defaultTechnicianId String?      @map("default_technician_id")
+  isActive            Boolean      @default(true) @map("is_active")
+  lastGeneratedAt     DateTime?    @map("last_generated_at")
+  createdAt           DateTime     @default(now()) @map("created_at")
+
+  asset      Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  workOrders WorkOrder[]
+
+  @@index([nextDueDate])
+  @@map("preventive_schedules")
+}
+
+// ---------------------------------------------------------------------
+//  Inventory & procurement
+// ---------------------------------------------------------------------
+
+enum MaterialStatus {
+  RESERVED  // stock is set aside for the work order
+  SHORTAGE  // not enough stock: work order is blocked
+  CONSUMED  // used during the repair
+  RELEASED  // reservation cancelled, stock returned
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+enum ProcurementStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  RECEIVED
+}
+
+model InventoryItem {
+  id              String   @id @default(uuid())
+  sku             String   @unique
+  name            String
+  category        String
+  unit            String   @default("pcs")
+  quantityOnHand  Int      @default(0) @map("quantity_on_hand")
+  reorderLevel    Int      @default(5) @map("reorder_level")
+  unitCost        Decimal  @default(0) @map("unit_cost") @db.Decimal(10, 2)
+  storageLocation String?  @map("storage_location")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  materials    MaterialRequirement[]
+  movements    StockMovement[]
+  procurements ProcurementRequest[]
+
+  @@map("inventory_items")
+}
+
+/// A spare part needed by a work order (reserved, short, consumed or released).
+model MaterialRequirement {
+  id          String         @id @default(uuid())
+  workOrderId String         @map("work_order_id")
+  itemId      String         @map("item_id")
+  quantity    Int
+  status      MaterialStatus
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  workOrder WorkOrder     @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  item      InventoryItem @relation(fields: [itemId], references: [id])
+
+  @@index([itemId, status])
+  @@map("material_requirements")
+}
+
+model StockMovement {
+  id          String       @id @default(uuid())
+  itemId      String       @map("item_id")
+  type        MovementType
+  quantity    Int
+  workOrderId String?      @map("work_order_id")
+  note        String?
+  performedBy String       @map("performed_by")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  item      InventoryItem @relation(fields: [itemId], references: [id])
+  workOrder WorkOrder?    @relation(fields: [workOrderId], references: [id])
+  user      User          @relation(fields: [performedBy], references: [id])
+
+  @@index([itemId])
+  @@map("stock_movements")
+}
+
+model ProcurementRequest {
+  id            String            @id @default(uuid())
+  code          String            @unique
+  itemId        String            @map("item_id")
+  quantity      Int
+  reason        String
+  status        ProcurementStatus @default(PENDING_APPROVAL)
+  workOrderId   String?           @map("work_order_id")
+  requestedById String            @map("requested_by_id")
+  decidedById   String?           @map("decided_by_id")
+  decisionNote  String?           @map("decision_note")
+  decidedAt     DateTime?         @map("decided_at")
+  receivedAt    DateTime?         @map("received_at")
+  createdAt     DateTime          @default(now()) @map("created_at")
+
+  item        InventoryItem @relation(fields: [itemId], references: [id])
+  workOrder   WorkOrder?    @relation(fields: [workOrderId], references: [id])
+  requestedBy User          @relation("ProcurementRequestedBy", fields: [requestedById], references: [id])
+  decidedBy   User?         @relation("ProcurementDecidedBy", fields: [decidedById], references: [id])
+
+  @@index([status])
+  @@map("procurement_requests")
+}
+
+// ---------------------------------------------------------------------
+//  Service levels, notifications & audit
+// ---------------------------------------------------------------------
+
+/// Target times per priority. Editable by the system administrator.
+model SlaPolicy {
+  priority        Priority @id
+  responseHours   Int      @map("response_hours")
+  resolutionHours Int      @map("resolution_hours")
+  description     String?
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("sla_policies")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  title     String
+  message   String
+  link      String?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?  @map("actor_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  details    Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+/// Sequential, human-readable codes (SR-000001, WO-000001, RCPT-000001 ...).
+model Sequence {
+  name  String @id
+  value Int    @default(0)
+
+  @@map("sequences")
+}

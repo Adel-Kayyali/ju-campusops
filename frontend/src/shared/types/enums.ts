@@ -1,0 +1,44 @@
+/** Enumerations shared with the API (same values as the backend's Prisma enums). */
+
+export type Role = 'STUDENT' | 'STAFF' | 'TECHNICIAN' | 'FACILITY_MANAGER' | 'ADMIN';
+export type Priority = 'P1' | 'P2' | 'P3' | 'P4';
+export type Severity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type Urgency = 'LOW' | 'MEDIUM' | 'HIGH';
+export type ContactMethod = 'IN_APP' | 'EMAIL' | 'PHONE';
+export type RequestCategory = 'ELECTRICAL' | 'PLUMBING' | 'HVAC' | 'CLEANING' | 'IT_NETWORK' | 'FURNITURE' | 'ELEVATOR' | 'SAFETY' | 'STRUCTURAL' | 'OTHER';
+export type RequestStatus = 'SUBMITTED' | 'ACKNOWLEDGED' | 'REJECTED' | 'ASSIGNED' | 'IN_PROGRESS' | 'RESOLVED' | 'VERIFIED' | 'CLOSED';
+export type SlaState = 'ON_TRACK' | 'AT_RISK' | 'BREACHED' | 'MET' | 'MISSED';
+export type WorkOrderType = 'CORRECTIVE' | 'PREVENTIVE';
+export type WorkOrderStatus = 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'VERIFIED' | 'CANCELLED';
+export type TaskType = 'INSPECTION' | 'MATERIAL_APPROVAL' | 'REPAIR' | 'REQUESTER_CONFIRMATION' | 'PREVENTIVE_CHECK';
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE' | 'SKIPPED';
+export type LockerSize = 'SMALL' | 'MEDIUM' | 'LARGE';
+export type LockerStatus = 'AVAILABLE' | 'RESERVED' | 'OCCUPIED' | 'EXPIRING_SOON' | 'EXPIRED' | 'OUT_OF_SERVICE';
+export type SubscriptionStatus = 'ACTIVE' | 'ENDED' | 'CANCELLED';
+export type SubscriptionState = 'UPCOMING' | 'ACTIVE' | 'EXPIRING_SOON' | 'EXPIRED' | 'ENDED' | 'CANCELLED';
+export type PaymentMethod = 'CASH';
+export type AssetType = 'ELEVATOR' | 'HVAC_UNIT' | 'LAB_EQUIPMENT' | 'PROJECTOR' | 'GENERATOR' | 'FIRE_SAFETY' | 'NETWORK_DEVICE' | 'PLUMBING_FIXTURE' | 'FURNITURE' | 'OTHER';
+export type AssetStatus = 'OPERATIONAL' | 'UNDER_MAINTENANCE' | 'OUT_OF_SERVICE' | 'RETIRED';
+export type WarrantyStatus = 'NONE' | 'ACTIVE' | 'EXPIRING_SOON' | 'EXPIRED';
+export type IntervalUnit = 'DAYS' | 'WEEKS' | 'MONTHS';
+export type MaterialStatus = 'RESERVED' | 'SHORTAGE' | 'CONSUMED' | 'RELEASED';
+export type MovementType = 'IN' | 'OUT' | 'ADJUSTMENT';
+export type ProcurementStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'RECEIVED';
+export type RoomType = 'CLASSROOM' | 'LAB' | 'OFFICE' | 'LECTURE_HALL' | 'RESTROOM' | 'CORRIDOR' | 'STORAGE' | 'OTHER';
+
+export const ROLES: Role[] = ['STUDENT', 'STAFF', 'TECHNICIAN', 'FACILITY_MANAGER', 'ADMIN'];
+export const PRIORITIES: Priority[] = ['P1', 'P2', 'P3', 'P4'];
+export const SEVERITIES: Severity[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+export const URGENCIES: Urgency[] = ['LOW', 'MEDIUM', 'HIGH'];
+export const CONTACT_METHODS: ContactMethod[] = ['IN_APP', 'EMAIL', 'PHONE'];
+export const REQUEST_CATEGORIES: RequestCategory[] = ['ELECTRICAL', 'PLUMBING', 'HVAC', 'CLEANING', 'IT_NETWORK', 'FURNITURE', 'ELEVATOR', 'SAFETY', 'STRUCTURAL', 'OTHER'];
+export const REQUEST_STATUSES: RequestStatus[] = ['SUBMITTED', 'ACKNOWLEDGED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED', 'VERIFIED', 'CLOSED', 'REJECTED'];
+export const WORK_ORDER_STATUSES: WorkOrderStatus[] = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'CANCELLED'];
+export const LOCKER_SIZES: LockerSize[] = ['SMALL', 'MEDIUM', 'LARGE'];
+export const LOCKER_STATUSES: LockerStatus[] = ['AVAILABLE', 'OCCUPIED', 'EXPIRING_SOON', 'EXPIRED', 'RESERVED', 'OUT_OF_SERVICE'];
+export const ASSET_TYPES: AssetType[] = ['ELEVATOR', 'HVAC_UNIT', 'LAB_EQUIPMENT', 'PROJECTOR', 'GENERATOR', 'FIRE_SAFETY', 'NETWORK_DEVICE', 'PLUMBING_FIXTURE', 'FURNITURE', 'OTHER'];
+export const ASSET_STATUSES: AssetStatus[] = ['OPERATIONAL', 'UNDER_MAINTENANCE', 'OUT_OF_SERVICE', 'RETIRED'];
+export const WARRANTY_STATUSES: WarrantyStatus[] = ['ACTIVE', 'EXPIRING_SOON', 'EXPIRED', 'NONE'];
+export const INTERVAL_UNITS: IntervalUnit[] = ['DAYS', 'WEEKS', 'MONTHS'];
+export const PROCUREMENT_STATUSES: ProcurementStatus[] = ['PENDING_APPROVAL', 'APPROVED', 'RECEIVED', 'REJECTED'];
+export const ROOM_TYPES: RoomType[] = ['CLASSROOM', 'LAB', 'OFFICE', 'LECTURE_HALL', 'RESTROOM', 'CORRIDOR', 'STORAGE', 'OTHER'];

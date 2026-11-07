@@ -1,0 +1,17 @@
+# dependencies & builds
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vercel
+
+# local configuration & data
+.env
+.env.local
+backend/uploads/
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/
+
