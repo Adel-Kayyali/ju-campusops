@@ -23,3 +23,7 @@ vercel-*.env
 .serena/
 .claude/
 CLAUDE.md
+
+# Project documentation (kept local, never pushed)
+CampusOps-Documentation.md
+docs/
