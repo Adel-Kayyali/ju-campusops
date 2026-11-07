@@ -2,6 +2,7 @@ import { Button, Group, Modal, PasswordInput, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useMutation } from '@tanstack/react-query';
 import { notify } from '@/shared/utils/notify';
+import { useAuth } from './AuthContext';
 import { authApi } from './authApi';
 
 export function ChangePasswordModal({ opened, onClose }: { opened: boolean; onClose: () => void }) {
@@ -13,12 +14,15 @@ export function ChangePasswordModal({ opened, onClose }: { opened: boolean; onCl
       confirm: (v, values) => (v === values.newPassword ? null : 'Passwords do not match'),
     },
   });
+  const { logout } = useAuth();
   const mutation = useMutation({
     mutationFn: (values: typeof form.values) => authApi.changePassword(values.currentPassword, values.newPassword),
     onSuccess: () => {
-      notify.success('Your password has been changed');
+      // The API signs the user out everywhere after a password change.
+      notify.success('Your password has been changed. Please sign in with the new password.');
       form.reset();
       onClose();
+      logout();
     },
     onError: (error) => notify.error(error),
   });

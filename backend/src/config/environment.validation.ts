@@ -4,7 +4,7 @@ import { IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min, validateSync }
 /**
  * Typed description of every environment variable the API reads.
  * The application refuses to start when a required variable is missing or invalid
- * (fail-fast, like Spring's @Validated @ConfigurationProperties).
+ * (fail-fast configuration validation).
  */
 export class EnvironmentVariables {
   @IsString()
@@ -28,6 +28,19 @@ export class EnvironmentVariables {
   @IsOptional()
   @IsString()
   JWT_EXPIRES_IN: string = '8h';
+
+  /** Login attempts allowed per e-mail and IP address within LOGIN_WINDOW_SECONDS. */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(1000)
+  LOGIN_MAX_ATTEMPTS: number = 5;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(3600)
+  LOGIN_WINDOW_SECONDS: number = 60;
 
   @IsOptional()
   @IsIn(['local', 'vercel-blob'])

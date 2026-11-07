@@ -32,6 +32,14 @@ export class AppConfigService {
     return this.config.get('JWT_EXPIRES_IN', { infer: true });
   }
 
+  get loginMaxAttempts(): number {
+    return this.config.get('LOGIN_MAX_ATTEMPTS', { infer: true });
+  }
+
+  get loginWindowSeconds(): number {
+    return this.config.get('LOGIN_WINDOW_SECONDS', { infer: true });
+  }
+
   get storageDriver(): StorageDriver {
     return this.config.get('STORAGE_DRIVER', { infer: true });
   }

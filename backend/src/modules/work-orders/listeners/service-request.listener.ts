@@ -4,7 +4,7 @@ import { RequestClosedEvent, RequestConfirmedEvent, RequestEvents, RequestReopen
 import { WorkOrderTaskService } from '../services/work-order-task.service';
 
 /**
- * Reacts to service-request events (like Spring's @EventListener).
+ * Reacts to service-request events (observer pattern).
  * Handlers run synchronously inside the publisher's transaction, and errors are NOT
  * suppressed, so a failure rolls back the whole operation.
  */

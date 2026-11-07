@@ -43,6 +43,45 @@ describe('CampusOps API (e2e)', () => {
     });
   });
 
+  describe('security', () => {
+    it('sends security headers', async () => {
+      const response = await request(http).get('/api/health').expect(200);
+      expect(response.headers['x-content-type-options']).toBe('nosniff');
+      expect(response.headers['x-frame-options']).toBeDefined();
+      expect(response.headers['content-security-policy']).toContain("frame-ancestors 'none'");
+    });
+
+    it('rejects a token after logout (server-side session revocation)', async () => {
+      const token = await login('staff2@campusops.edu');
+      await request(http).get('/api/auth/me').set('Authorization', `Bearer ${token}`).expect(200);
+      await request(http).post('/api/auth/logout').set('Authorization', `Bearer ${token}`).expect(204);
+      const response = await request(http).get('/api/auth/me').set('Authorization', `Bearer ${token}`).expect(401);
+      expect(response.body.message).toContain('session has ended');
+    });
+
+    it('locks out a deactivated user immediately, even with a valid token', async () => {
+      const admin = await login('admin@campusops.edu');
+      const staffToken = await login('staff3@campusops.edu');
+      const users = await request(http).get('/api/users?search=staff3@campusops.edu').set('Authorization', `Bearer ${admin}`).expect(200);
+      const staffId = users.body.content[0].id as string;
+
+      await request(http).patch(`/api/users/${staffId}/status`).set('Authorization', `Bearer ${admin}`).send({ isActive: false }).expect(200);
+      await request(http).get('/api/auth/me').set('Authorization', `Bearer ${staffToken}`).expect(401);
+      await request(http).patch(`/api/users/${staffId}/status`).set('Authorization', `Bearer ${admin}`).send({ isActive: true }).expect(200);
+    });
+
+    it('limits repeated login attempts for the same account', async () => {
+      const attempt = () => request(http).post('/api/auth/login').send({ email: 'nobody@campusops.edu', password: 'wrong-password' });
+      for (let i = 0; i < 5; i++) {
+        await attempt().expect(401);
+      }
+      const blocked = await attempt().expect(429);
+      expect(blocked.body.code).toBe('TOO_MANY_REQUESTS');
+      // other accounts from the same address are not affected
+      await login('tech2@campusops.edu');
+    });
+  });
+
   describe('locker subscriptions', () => {
     it('starts, rejects an overlap, extends and ends a subscription', async () => {
       const manager = await login('manager@campusops.edu');

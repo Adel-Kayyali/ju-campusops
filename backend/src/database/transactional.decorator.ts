@@ -2,7 +2,7 @@ import { TransactionManager } from './transaction-manager';
 
 /**
  * Runs the decorated async method inside a database transaction
- * (the equivalent of Spring's @Transactional). If any error is thrown,
+ * (declarative transaction). If any error is thrown,
  * every write made through repositories during the call is rolled back.
  */
 export function Transactional(): MethodDecorator {

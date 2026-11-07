@@ -103,6 +103,10 @@ export class UserService {
           ? { connectOrCreate: { where: { userId: id }, create: { skills: [] } } }
           : undefined,
     });
+    if (dto.role && dto.role !== existing.role) {
+      // New permissions must apply immediately: sign the user out everywhere.
+      await this.repository.revokeSessions(id);
+    }
     await this.auditService.record({ actorId, action: AuditAction.USER_UPDATED, entityType: 'User', entityId: id, details: { ...dto } });
     return UserMapper.toResponse(user);
   }
@@ -114,6 +118,9 @@ export class UserService {
     }
     await this.getById(id);
     const user = await this.repository.update(id, { isActive });
+    if (!isActive) {
+      await this.repository.revokeSessions(id);
+    }
     await this.auditService.record({
       actorId,
       action: isActive ? AuditAction.USER_ACTIVATED : AuditAction.USER_DEACTIVATED,
@@ -127,14 +134,18 @@ export class UserService {
   async resetPassword(id: string, dto: ResetPasswordDto, actorId: string): Promise<void> {
     await this.getById(id);
     await this.repository.update(id, { passwordHash: await this.passwordHasher.hash(dto.newPassword) });
+    await this.repository.revokeSessions(id);
     await this.auditService.record({ actorId, action: AuditAction.USER_PASSWORD_RESET, entityType: 'User', entityId: id });
   }
 
+  /** Changes the password and signs the user out on every device (they log in again with the new one). */
+  @Transactional()
   async changeOwnPassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
     const user = await this.getById(id);
     if (!(await this.passwordHasher.matches(currentPassword, user.passwordHash))) {
       throw new BusinessRuleViolationException('The current password is incorrect', 'WRONG_PASSWORD');
     }
     await this.repository.update(id, { passwordHash: await this.passwordHasher.hash(newPassword) });
+    await this.repository.revokeSessions(id);
   }
 }

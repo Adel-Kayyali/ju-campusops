@@ -1,4 +1,4 @@
-/** A page of results (same shape as Spring Data's Page). */
+/** A page of results: items of the current page plus paging information. */
 export class PageDto<T> {
   content: T[];
   page: number;

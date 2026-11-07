@@ -34,6 +34,11 @@ export class UserRepository extends BaseRepository {
     return this.db.user.update({ where: { id }, data });
   }
 
+  /** Invalidates every token issued so far for this user (see JwtAuthGuard). */
+  async revokeSessions(id: string): Promise<void> {
+    await this.db.user.update({ where: { id }, data: { tokenVersion: { increment: 1 } } });
+  }
+
   countByRole(): Promise<{ role: Role; _count: { _all: number } }[]> {
     return this.db.user.groupBy({ by: ['role'], _count: { _all: true } }) as unknown as Promise<{ role: Role; _count: { _all: number } }[]>;
   }

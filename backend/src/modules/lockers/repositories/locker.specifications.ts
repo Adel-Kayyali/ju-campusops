@@ -5,7 +5,7 @@ import { LockerStatus } from '../domain/locker-status';
 
 /**
  * Translates the (derived) locker statuses into SQL conditions, so the database can
- * filter and paginate (similar to Spring Data JPA Specifications).
+ * filter and paginate (Specification pattern).
  * Must stay consistent with deriveLockerStatus().
  */
 export class LockerSpecifications {

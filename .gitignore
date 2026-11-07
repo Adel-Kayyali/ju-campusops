@@ -18,4 +18,8 @@ backend/uploads/
 
 # Vercel environment files (contain secrets – never commit)
 vercel-*.env
+
+# local AI / editor tool folders
 .serena/
+.claude/
+CLAUDE.md

@@ -37,6 +37,9 @@ model User {
   phone        String?
   department   String?
   isActive     Boolean  @default(true) @map("is_active")
+  /// Incremented on logout, password change, deactivation or role change.
+  /// Every JWT carries the version it was issued with; older tokens are rejected.
+  tokenVersion Int      @default(0) @map("token_version")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

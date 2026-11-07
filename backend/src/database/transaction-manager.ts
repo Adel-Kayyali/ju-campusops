@@ -7,7 +7,7 @@ import { PrismaService } from './prisma.service';
 export type DbClient = Prisma.TransactionClient;
 
 /**
- * Spring-like declarative transactions for Prisma.
+ * Declarative transactions for Prisma.
  *
  * The active transaction client is kept in an AsyncLocalStorage, so repositories
  * never need a "tx" parameter: they simply use {@link TransactionManager.client},

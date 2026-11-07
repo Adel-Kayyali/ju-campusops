@@ -21,7 +21,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(() => sessionStore.load());
   const queryClient = useQueryClient();
 
+  /** Ends the session locally at once, and on the server (all tokens of the user are revoked). */
   const logout = useCallback(() => {
+    if (sessionStore.token) {
+      authApi.logout().catch(() => undefined);
+    }
     sessionStore.clear();
     setSession(null);
     queryClient.clear();

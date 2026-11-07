@@ -2,6 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
 import { LOCAL_UPLOAD_ROOT } from './modules/storage/providers/local-file.storage';
@@ -19,6 +20,26 @@ export async function createApp(): Promise<INestApplication> {
 
 export function configureApp(app: NestExpressApplication): void {
   const config = app.get(AppConfigService);
+
+  // Behind Vercel's proxy: use the X-Forwarded-For address as the client IP (login rate limiting).
+  app.set('trust proxy', 1);
+  app.use(
+    helmet({
+      // Uploaded photos are displayed by the website, which runs on another origin.
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      // Strict policy for everything the API serves; Swagger UI needs inline scripts/styles.
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          frameAncestors: ["'none'"],
+          objectSrc: ["'none'"],
+        },
+      },
+    }),
+  );
 
   app.setGlobalPrefix('api');
   app.enableCors({ origin: config.corsOrigins, credentials: false });

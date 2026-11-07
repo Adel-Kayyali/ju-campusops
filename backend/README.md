@@ -1,26 +1,24 @@
 # CampusOps API (backend)
 
-NestJS 11 + TypeScript + Prisma 6 + PostgreSQL. Layered, modular architecture that will feel
-familiar to a Spring Boot developer.
+NestJS 11 + TypeScript + Prisma 6 + PostgreSQL. Layered, modular architecture.
 
-## NestJS for a Spring developer
+## Architecture at a glance
 
-| Spring Boot | Here |
+| Concern | Where |
 |---|---|
-| `@RestController` | `@Controller()` classes in `controllers/` |
-| `@Service` | `@Injectable()` classes in `services/` |
-| `JpaRepository` / `@Repository` | classes in `repositories/` extending `BaseRepository` (Prisma underneath) |
-| JPA entities | `prisma/schema.prisma` (one model = one table) |
-| Spring Data `Specification` | `repositories/*.specifications.ts` (e.g. locker status filters) |
-| `@Transactional` | `@Transactional()` from `src/database/transactional.decorator.ts` (AsyncLocalStorage, REQUIRED propagation) |
-| Bean Validation (`@NotNull`, `@Size`) on DTOs | `class-validator` decorators on DTO classes + global `ValidationPipe` |
-| `@ControllerAdvice` | `src/common/filters/global-exception.filter.ts` |
-| Spring Security filter + `@PreAuthorize("hasRole(...)")` | global `JwtAuthGuard` + `RolesGuard`, `@Roles(...)`, `@Public()` |
-| `@ConfigurationProperties` + validation | `src/config` (`AppConfigService`, fail-fast env validation) |
-| `ApplicationEventPublisher` / `@EventListener` | `EventEmitter2.emitAsync` / `@OnEvent` (see `work-orders/listeners`) |
-| `@Configuration` + `@Bean` | `@Module({ providers })` |
-| springdoc / Swagger UI | `@nestjs/swagger` at `/api/docs` |
-| JUnit + MockMvc | Jest unit tests (`*.spec.ts`) + Supertest e2e (`test/`) |
+| HTTP endpoints | `@Controller()` classes in `controllers/` |
+| Business logic / use cases | `@Injectable()` services in `services/` |
+| Data access | repositories in `repositories/` extending `BaseRepository` (Prisma underneath) |
+| Database tables | `prisma/schema.prisma` (one model = one table) + migrations |
+| Reusable query conditions | `repositories/*.specifications.ts` (e.g. locker status filters) |
+| Transactions | `@Transactional()` from `src/database/transactional.decorator.ts` (nested calls join the outer transaction) |
+| Input validation | `class-validator` decorators on DTO classes + global `ValidationPipe` |
+| Error handling | domain exceptions + `src/common/filters/global-exception.filter.ts` |
+| Authentication & roles | JWT (`modules/auth`), global auth guard, `RolesGuard`, `@Roles(...)`, `@Public()` |
+| Configuration | `src/config` (`AppConfigService`, fail-fast environment validation) |
+| Cross-module reactions | domain events: `EventEmitter2.emitAsync` / `@OnEvent` (see `work-orders/listeners`) |
+| API documentation | `@nestjs/swagger` at `/api/docs` |
+| Tests | Jest unit tests (`*.spec.ts`) + Supertest end-to-end tests (`test/`) |
 
 ## Folder structure
 

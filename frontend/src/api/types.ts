@@ -1,4 +1,4 @@
-/** A page of results, same shape as the API's PageDto (Spring-like). */
+/** A page of results, same shape as the API's PageDto. */
 export interface Page<T> {
   content: T[];
   page: number;

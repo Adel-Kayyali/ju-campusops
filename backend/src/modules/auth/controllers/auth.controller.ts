@@ -1,5 +1,6 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags, ApiTooManyRequestsResponse } from '@nestjs/swagger';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
 import { AuthenticatedUser } from '../../../common/types/authenticated-user';
@@ -12,11 +13,22 @@ import { AuthService } from '../services/auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /** Limited to LOGIN_MAX_ATTEMPTS per e-mail + IP address per LOGIN_WINDOW_SECONDS (brute-force protection). */
   @Public()
+  @UseGuards(ThrottlerGuard)
+  @ApiTooManyRequestsResponse({ description: 'Too many login attempts' })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(dto);
+  }
+
+  /** Ends the session on every device (all existing tokens of the user become invalid). */
+  @ApiBearerAuth()
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  logout(@CurrentUser() user: AuthenticatedUser): Promise<void> {
+    return this.authService.logout(user.id);
   }
 
   @ApiBearerAuth()
@@ -25,6 +37,7 @@ export class AuthController {
     return this.authService.me(user.id);
   }
 
+  /** After a successful change the user is signed out everywhere and logs in with the new password. */
   @ApiBearerAuth()
   @Post('change-password')
   @HttpCode(HttpStatus.NO_CONTENT)

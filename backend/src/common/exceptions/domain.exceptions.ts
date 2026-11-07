@@ -3,7 +3,7 @@ import { HttpStatus } from '@nestjs/common';
 /**
  * Base class of all business (domain) errors. Services throw these; the
  * {@link GlobalExceptionFilter} translates them into consistent HTTP responses,
- * like a Spring @ControllerAdvice.
+ * in one central place.
  */
 export abstract class DomainException extends Error {
   abstract readonly httpStatus: HttpStatus;
