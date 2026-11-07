@@ -1,5 +1,7 @@
 # Deployment guide (free: GitHub + Neon + Vercel)
 
+Live instance: https://ju-campusops.vercel.app (API: https://ju-campusops-api.vercel.app/api/docs)
+
 ```
 Browser ──► Vercel (frontend, static React build)
    │
@@ -22,10 +24,10 @@ git push -u origin main
 
 ## 2. Database (Neon)
 
-1. Create a free project at https://neon.tech (region close to Jordan, e.g. *Europe (Frankfurt)*).
+1. Create a free project at https://console.neon.tech (if the neon.tech homepage does not load, the console usually still does; you can also create the database from Vercel: **Storage → Create Database → Neon**) (region close to Jordan, e.g. *Europe (Frankfurt)*).
 2. In **Connection details**, copy two connection strings:
-   - **Pooled** connection (host contains `-pooler`) → `DATABASE_URL`. Append `&pgbouncer=true&connect_timeout=15`.
-   - **Direct** connection (no `-pooler`) → `DIRECT_URL`.
+   - **Pooled** connection (host contains `-pooler`) → `DATABASE_URL`. Remove `&channel_binding=require` and append `&pgbouncer=true&connect_timeout=15`.
+   - **Direct** connection (no `-pooler`) → `DIRECT_URL`. Remove `&channel_binding=require` here too.
 3. Create the tables and load the demo data **from your computer**:
 
 ```bash
@@ -56,7 +58,9 @@ DATABASE_URL="<direct url>" DIRECT_URL="<direct url>" npm run db:seed
 | `CRON_SECRET` | a random string (Vercel Cron sends it automatically) |
 | `APP_TIMEZONE` | `Asia/Amman` |
 
-4. **Storage → Create → Blob**, connect it to this project. Vercel adds `BLOB_READ_WRITE_TOKEN` automatically.
+4. **Storage → Create Database → Blob**. Choose **Public** access (a *Private* store rejects the app's uploads),
+   connect it to this project with all environments ticked. Check under **Settings → Environment Variables** that a
+   variable named exactly `BLOB_READ_WRITE_TOKEN` exists for **Production**, then **Deployments → ⋯ → Redeploy**.
 5. Deploy, then open `https://<backend>.vercel.app/api/health` → `{"status":"ok","database":"up"}`,
    and `https://<backend>.vercel.app/api/docs` for Swagger.
 

@@ -17,6 +17,17 @@ is tracked against service-level targets. The facilities office also manages pai
 | Student lockers | Grid/table of every locker with status and occupant; filters; subscriptions (from–to dates or 1–4 month presets), cash receipts, extend / end, out of service; students see their own lockers |
 | SLA, dashboards & audit | Priority matrix, escalation of overdue requests, KPI dashboards, performance reports, full audit trail, role-based access |
 
+## Live demo
+
+| | |
+|---|---|
+| Website | https://ju-campusops.vercel.app |
+| API documentation (Swagger) | https://ju-campusops-api.vercel.app/api/docs |
+| API health check | https://ju-campusops-api.vercel.app/api/health |
+
+Hosted for free on Vercel (website + API) and Neon (PostgreSQL); photos are stored in Vercel Blob.
+The first request after a quiet period can take 10–20 seconds while the servers wake up.
+
 ## Repository layout
 
 ```
@@ -64,14 +75,14 @@ The backend and the frontend both run on Node.js. `npm` (the package manager) is
 1. Install Git from https://git-scm.com/downloads (default options), open a new terminal, check with `git --version`.
 2. Download the project:
    ```bash
-   git clone https://github.com/<account>/<repository>.git campusops
-   cd campusops
+   git clone https://github.com/Adel-Kayyali/ju-campusops.git
+   cd ju-campusops
    ```
 
-**Option B – without Git:** on the GitHub page click **Code → Download ZIP**, unzip it (for example to your Desktop),
+**Option B – without Git:** on https://github.com/Adel-Kayyali/ju-campusops click **Code → Download ZIP**, unzip it (for example to your Desktop),
 then in the terminal go into that folder:
 ```bash
-cd Desktop/campusops        # use the real folder name
+cd Desktop/ju-campusops     # use the real folder name
 ```
 
 Check: listing the folder (`ls` – Windows: `dir`) shows `backend`, `frontend` and `README.md`.
