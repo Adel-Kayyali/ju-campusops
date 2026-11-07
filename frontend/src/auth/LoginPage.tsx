@@ -1,4 +1,4 @@
-import { Alert, Anchor, Box, Button, Center, Divider, Group, Paper, PasswordInput, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title } from '@mantine/core';
+import { Alert, Box, Button, Center, Group, Paper, PasswordInput, Stack, Text, TextInput, ThemeIcon, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconBuildingCommunity } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -6,15 +6,6 @@ import { Navigate, useLocation, useNavigate } from 'react-router';
 import { errorMessage } from '@/api/apiError';
 import { useAuth } from './AuthContext';
 
-/** Demo accounts created by the database seed (synthetic users). */
-const DEMO_ACCOUNTS = [
-  { label: 'Administrator', email: 'admin@campusops.edu' },
-  { label: 'Facility manager', email: 'manager@campusops.edu' },
-  { label: 'Technician', email: 'tech@campusops.edu' },
-  { label: 'Student', email: 'student@campusops.edu' },
-  { label: 'Staff member', email: 'staff@campusops.edu' },
-];
-const DEMO_PASSWORD = 'Password123!';
 
 export function LoginPage() {
   const { login, isAuthenticated } = useAuth();
@@ -81,14 +72,6 @@ export function LoginPage() {
             </Stack>
           </form>
 
-          <Divider label="Demo accounts (password: Password123!)" labelPosition="center" />
-          <SimpleGrid cols={2} spacing={6}>
-            {DEMO_ACCOUNTS.map((account) => (
-              <Anchor key={account.email} size="sm" component="button" type="button" onClick={() => form.setValues({ email: account.email, password: DEMO_PASSWORD })}>
-                {account.label}
-              </Anchor>
-            ))}
-          </SimpleGrid>
         </Stack>
       </Paper>
     </Center>

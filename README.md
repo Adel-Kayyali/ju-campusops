@@ -150,7 +150,7 @@ npm run dev
 ```
 
 Check: the terminal shows `Local: http://localhost:5173/`. Open **http://localhost:5173** in your browser and
-sign in with one of the demo accounts below (the login page also has one-click buttons that fill them in).
+sign in with one of the demo accounts below.
 
 ### Next time
 

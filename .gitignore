@@ -15,3 +15,7 @@ backend/uploads/
 .idea/
 .vscode/
 
+
+# Vercel environment files (contain secrets – never commit)
+vercel-*.env
+.serena/
