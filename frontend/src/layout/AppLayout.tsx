@@ -6,6 +6,7 @@ import { Link, Outlet, useLocation } from 'react-router';
 import { useAuth } from '@/auth/AuthContext';
 import { ChangePasswordModal } from '@/auth/ChangePasswordModal';
 import { StatusBadge } from '@/shared/components/StatusBadge';
+import { TeacherStatusToggle } from '@/features/teachers/components/TeacherStatusToggle';
 import { NAVIGATION } from './navigation';
 import { NotificationBell } from './NotificationBell';
 
@@ -34,6 +35,7 @@ export function AppLayout() {
             </Title>
           </Group>
           <Group gap="xs">
+            {hasRole('TEACHER') && <TeacherStatusToggle compact />}
             <Tooltip label={colorScheme === 'dark' ? 'Light mode' : 'Dark mode'}>
               <ActionIcon variant="subtle" size="lg" onClick={toggleColorScheme} aria-label="Toggle colour scheme">
                 {colorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}

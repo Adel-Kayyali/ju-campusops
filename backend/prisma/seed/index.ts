@@ -46,6 +46,7 @@ import {
   ROOMS,
   SCHEDULES,
   STAFF,
+  TEACHERS,
   TECHNICIANS,
   studentNames,
 } from './catalog';
@@ -169,6 +170,31 @@ async function seedUsers(buildings: Ids): Promise<SeededUsers> {
   }
   // one deactivated student, to show account management
   await prisma.user.update({ where: { id: students[29].id }, data: { isActive: false } });
+
+  for (const teacher of TEACHERS) {
+    await create({
+      email: teacher.email,
+      fullName: teacher.fullName,
+      role: Role.TEACHER,
+      phone: teacher.phone,
+      department: teacher.department,
+      teacherProfile: {
+        create: {
+          title: teacher.title,
+          department: teacher.department,
+          officeLocation: teacher.office,
+          status: teacher.status,
+          statusChangedAt: hoursAgo(random.int(1, 6)),
+          schedule: {
+            create: [
+              ...teacher.lectures.map(([weekday, startTime, endTime, title, location]) => ({ type: 'LECTURE' as const, weekday, startTime, endTime, title, location })),
+              ...teacher.officeHours.map(([weekday, startTime, endTime, title, location]) => ({ type: 'OFFICE_HOUR' as const, weekday, startTime, endTime, title, location })),
+            ],
+          },
+        },
+      },
+    });
+  }
 
   const staff = [];
   for (const member of STAFF) {

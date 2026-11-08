@@ -74,6 +74,12 @@ const COLORS: Record<string, MantineColor> = {
   TECHNICIAN: 'orange',
   STAFF: 'teal',
   STUDENT: 'blue',
+  TEACHER: 'grape',
+  // teachers
+  FREE: 'green',
+  BUSY: 'red',
+  LECTURE: 'blue',
+  OFFICE_HOUR: 'teal',
 };
 
 export function statusColor(value: string): MantineColor {

@@ -16,6 +16,8 @@ import { NewRequestPage } from '@/features/requests/pages/NewRequestPage';
 import { RequestDetailPage } from '@/features/requests/pages/RequestDetailPage';
 import { RequestListPage } from '@/features/requests/pages/RequestListPage';
 import { SlaSettingsPage } from '@/features/settings/pages/SlaSettingsPage';
+import { MyTeacherProfilePage } from '@/features/teachers/pages/MyTeacherProfilePage';
+import { TeachersPage } from '@/features/teachers/pages/TeachersPage';
 import { TechniciansPage } from '@/features/technicians/pages/TechniciansPage';
 import { UsersPage } from '@/features/users/pages/UsersPage';
 import { WorkOrderDetailPage } from '@/features/work-orders/pages/WorkOrderDetailPage';
@@ -50,6 +52,10 @@ export const router = createBrowserRouter([
           // lockers
           { path: 'lockers', element: <RequireRole roles={RoleGroups.MANAGEMENT}><LockersPage /></RequireRole> },
           { path: 'my-lockers', element: <RequireRole roles={['STUDENT']}><MyLockersPage /></RequireRole> },
+
+          // teachers directory (everyone) and the teacher's own section
+          { path: 'teachers', element: <TeachersPage /> },
+          { path: 'my-teacher-profile', element: <RequireRole roles={['TEACHER']}><MyTeacherProfilePage /></RequireRole> },
 
           // facilities
           { path: 'assets', element: <RequireRole roles={RoleGroups.FIELD_STAFF}><AssetListPage /></RequireRole> },

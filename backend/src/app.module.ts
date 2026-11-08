@@ -21,6 +21,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { ServiceRequestsModule } from './modules/service-requests/service-requests.module';
 import { SlaModule } from './modules/sla/sla.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { TeachersModule } from './modules/teachers/teachers.module';
 import { TechniciansModule } from './modules/technicians/technicians.module';
 import { UsersModule } from './modules/users/users.module';
 import { WorkOrdersModule } from './modules/work-orders/work-orders.module';
@@ -49,6 +50,7 @@ import { WorkOrdersModule } from './modules/work-orders/work-orders.module';
     AssetsModule,
     ServiceRequestsModule,
     TechniciansModule,
+    TeachersModule,
     InventoryModule,
     WorkOrdersModule,
     MaintenanceModule,

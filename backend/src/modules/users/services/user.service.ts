@@ -81,6 +81,7 @@ export class UserService {
       department: dto.department || null,
       passwordHash: await this.passwordHasher.hash(dto.password),
       technicianProfile: dto.role === Role.TECHNICIAN ? { create: { skills: [] } } : undefined,
+      teacherProfile: dto.role === Role.TEACHER ? { create: {} } : undefined,
     });
     await this.auditService.record({ actorId, action: AuditAction.USER_CREATED, entityType: 'User', entityId: user.id, details: { email, role: user.role } });
     return UserMapper.toResponse(user);
@@ -102,6 +103,7 @@ export class UserService {
         dto.role === Role.TECHNICIAN && existing.role !== Role.TECHNICIAN
           ? { connectOrCreate: { where: { userId: id }, create: { skills: [] } } }
           : undefined,
+      teacherProfile: dto.role === Role.TEACHER && existing.role !== Role.TEACHER ? { connectOrCreate: { where: { userId: id }, create: {} } } : undefined,
     });
     if (dto.role && dto.role !== existing.role) {
       // New permissions must apply immediately: sign the user out everywhere.

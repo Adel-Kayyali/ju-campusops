@@ -13,6 +13,8 @@ import {
   IconUserCog,
   IconLockAccess,
   IconMessageReport,
+  IconSchool,
+  IconUserCircle,
 } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { RoleGroups } from '@/auth/roles';
@@ -40,6 +42,8 @@ export const NAVIGATION: NavSection[] = [
       { label: 'Service requests', to: '/requests', icon: <IconMessageReport size={size} />, roles: RoleGroups.ALL },
       { label: 'Work orders', to: '/work-orders', icon: <IconClipboardList size={size} />, roles: RoleGroups.FIELD_STAFF },
       { label: 'My lockers', to: '/my-lockers', icon: <IconLockAccess size={size} />, roles: ['STUDENT'] },
+      { label: 'Teachers', to: '/teachers', icon: <IconSchool size={size} />, roles: RoleGroups.ALL },
+      { label: 'My teacher profile', to: '/my-teacher-profile', icon: <IconUserCircle size={size} />, roles: ['TEACHER'] },
     ],
   },
   {

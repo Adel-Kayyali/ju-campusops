@@ -16,6 +16,7 @@ is tracked against service-level targets. The facilities office also manages pai
 | Inventory | Spare parts, reservations per work order, consumption, shortages that **block** work orders, procurement approval workflow |
 | Student lockers | Grid/table of every locker with status and occupant; filters; subscriptions (from–to dates or 1–4 month presets), cash receipts, extend / end, out of service; students see their own lockers |
 | SLA, dashboards & audit | Priority matrix, escalation of overdue requests, KPI dashboards, performance reports, full audit trail, role-based access |
+| Teachers directory | Every teacher keeps a profile (title, department, office, contact), a weekly timetable of lectures and office hours, and a one-click **Free / Busy** status that only the teacher can change; everyone can search teachers and see their status, today's timetable and what they are doing right now |
 
 ## Live demo
 
@@ -204,6 +205,7 @@ All demo users are fictional. Password for every account: **`Password123!`**
 | Technician | tech@campusops.edu |
 | Student (has lockers) | student@campusops.edu |
 | Staff member | staff@campusops.edu |
+| Teacher | teacher@campusops.edu |
 
 ## Tests
 

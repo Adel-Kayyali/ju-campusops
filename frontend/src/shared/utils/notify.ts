@@ -1,5 +1,15 @@
 import { notifications } from '@mantine/notifications';
-import { errorMessage } from '@/api/apiError';
+import { errorMessage, toApiError } from '@/api/apiError';
+
+/** A title that matches the kind of error (the message itself comes from the API). */
+function errorTitle(error: unknown): string {
+  const { status } = toApiError(error);
+  if (status === 400 || status === 422) return 'Please check your input';
+  if (status === 409) return 'Not possible right now';
+  if (status === 403) return 'Not allowed';
+  if (status === 429) return 'Too many attempts';
+  return 'Something went wrong';
+}
 
 /** Toast helpers used after every create / update action. */
 export const notify = {
@@ -12,6 +22,6 @@ export const notify = {
   },
   /** Takes a single argument so it can be passed directly as a React Query `onError` callback. */
   error(error: unknown): void {
-    notifications.show({ title: 'Something went wrong', message: errorMessage(error), color: 'red', autoClose: 7000 });
+    notifications.show({ title: errorTitle(error), message: errorMessage(error), color: 'red', autoClose: 7000 });
   },
 };

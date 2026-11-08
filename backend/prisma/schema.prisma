@@ -25,6 +25,7 @@ enum Role {
   TECHNICIAN
   FACILITY_MANAGER
   ADMIN
+  TEACHER
 }
 
 model User {
@@ -44,6 +45,7 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   technicianProfile      TechnicianProfile?
+  teacherProfile         TeacherProfile?
   lockerSubscriptions    LockerSubscription[]    @relation("SubscriptionStudent")
   createdSubscriptions   LockerSubscription[]    @relation("SubscriptionCreatedBy")
   endedSubscriptions     LockerSubscription[]    @relation("SubscriptionEndedBy")
@@ -63,6 +65,66 @@ model User {
 
   @@index([role])
   @@map("users")
+}
+
+// ---------------------------------------------------------------------
+//  Teachers directory (profiles, weekly timetable, availability)
+// ---------------------------------------------------------------------
+
+enum TeacherStatus {
+  FREE
+  BUSY
+}
+
+enum Weekday {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum ScheduleEntryType {
+  LECTURE
+  OFFICE_HOUR
+}
+
+/// Public information of a teacher. Only the teacher can change it (and his status).
+model TeacherProfile {
+  id              String        @id @default(uuid())
+  userId          String        @unique @map("user_id")
+  title           String?
+  department      String?
+  officeLocation  String?       @map("office_location")
+  contactEmail    String?       @map("contact_email")
+  status          TeacherStatus @default(FREE)
+  statusChangedAt DateTime      @default(now()) @map("status_changed_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  user     User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schedule TeacherScheduleEntry[]
+
+  @@index([status])
+  @@map("teacher_profiles")
+}
+
+/// One weekly slot: a lecture or an office hour. Times are "HH:MM" (campus time).
+model TeacherScheduleEntry {
+  id        String            @id @default(uuid())
+  profileId String            @map("profile_id")
+  type      ScheduleEntryType
+  weekday   Weekday
+  startTime String            @map("start_time") @db.VarChar(5)
+  endTime   String            @map("end_time") @db.VarChar(5)
+  title     String
+  location  String?
+
+  profile TeacherProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, weekday])
+  @@map("teacher_schedule_entries")
 }
 
 // ---------------------------------------------------------------------

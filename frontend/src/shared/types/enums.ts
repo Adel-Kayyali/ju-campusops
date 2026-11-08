@@ -1,6 +1,6 @@
 /** Enumerations shared with the API (same values as the backend's Prisma enums). */
 
-export type Role = 'STUDENT' | 'STAFF' | 'TECHNICIAN' | 'FACILITY_MANAGER' | 'ADMIN';
+export type Role = 'STUDENT' | 'STAFF' | 'TEACHER' | 'TECHNICIAN' | 'FACILITY_MANAGER' | 'ADMIN';
 export type Priority = 'P1' | 'P2' | 'P3' | 'P4';
 export type Severity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type Urgency = 'LOW' | 'MEDIUM' | 'HIGH';
@@ -24,9 +24,15 @@ export type IntervalUnit = 'DAYS' | 'WEEKS' | 'MONTHS';
 export type MaterialStatus = 'RESERVED' | 'SHORTAGE' | 'CONSUMED' | 'RELEASED';
 export type MovementType = 'IN' | 'OUT' | 'ADJUSTMENT';
 export type ProcurementStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'RECEIVED';
+export type TeacherStatus = 'FREE' | 'BUSY';
+export type Weekday = 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY';
+export type ScheduleEntryType = 'LECTURE' | 'OFFICE_HOUR';
 export type RoomType = 'CLASSROOM' | 'LAB' | 'OFFICE' | 'LECTURE_HALL' | 'RESTROOM' | 'CORRIDOR' | 'STORAGE' | 'OTHER';
 
-export const ROLES: Role[] = ['STUDENT', 'STAFF', 'TECHNICIAN', 'FACILITY_MANAGER', 'ADMIN'];
+export const ROLES: Role[] = ['STUDENT', 'STAFF', 'TEACHER', 'TECHNICIAN', 'FACILITY_MANAGER', 'ADMIN'];
+/** Calendar order; index = JavaScript Date.getDay() (0 = Sunday). */
+export const WEEKDAYS: Weekday[] = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+export const SCHEDULE_ENTRY_TYPES: ScheduleEntryType[] = ['LECTURE', 'OFFICE_HOUR'];
 export const PRIORITIES: Priority[] = ['P1', 'P2', 'P3', 'P4'];
 export const SEVERITIES: Severity[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 export const URGENCIES: Urgency[] = ['LOW', 'MEDIUM', 'HIGH'];

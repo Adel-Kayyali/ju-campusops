@@ -82,6 +82,44 @@ describe('CampusOps API (e2e)', () => {
     });
   });
 
+  describe('teachers directory', () => {
+    it('lets a teacher toggle his own status, and everyone see it', async () => {
+      const teacher = await login('teacher@campusops.edu');
+      const asTeacher = { Authorization: `Bearer ${teacher}` };
+      const mine = await request(http).get('/api/teachers/me').set(asTeacher).expect(200);
+      const next = mine.body.status === 'FREE' ? 'BUSY' : 'FREE';
+
+      await request(http).put('/api/teachers/me/status').set(asTeacher).send({ status: next }).expect(200);
+
+      const student = await login('student@campusops.edu');
+      const found = await request(http).get('/api/teachers?search=Qudah').set('Authorization', `Bearer ${student}`).expect(200);
+      expect(found.body.content[0].status).toBe(next);
+      await request(http).put('/api/teachers/me/status').set(asTeacher).send({ status: mine.body.status }).expect(200);
+    });
+
+    it('does not let anyone else change a teacher status (not even an admin)', async () => {
+      const student = await login('student@campusops.edu');
+      const admin = await login('admin@campusops.edu');
+      await request(http).put('/api/teachers/me/status').set('Authorization', `Bearer ${student}`).send({ status: 'BUSY' }).expect(403);
+      await request(http).put('/api/teachers/me/status').set('Authorization', `Bearer ${admin}`).send({ status: 'BUSY' }).expect(403);
+    });
+
+    it('rejects an overlapping timetable', async () => {
+      const teacher = await login('teacher6@campusops.edu');
+      const response = await request(http)
+        .put('/api/teachers/me/schedule')
+        .set('Authorization', `Bearer ${teacher}`)
+        .send({
+          entries: [
+            { type: 'LECTURE', weekday: 'SUNDAY', startTime: '10:00', endTime: '11:30', title: 'A' },
+            { type: 'OFFICE_HOUR', weekday: 'SUNDAY', startTime: '11:00', endTime: '12:00', title: 'Office hours' },
+          ],
+        })
+        .expect(422);
+      expect(response.body.code).toBe('TIMETABLE_OVERLAP');
+    });
+  });
+
   describe('locker subscriptions', () => {
     it('starts, rejects an overlap, extends and ends a subscription', async () => {
       const manager = await login('manager@campusops.edu');
