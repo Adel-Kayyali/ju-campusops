@@ -153,7 +153,7 @@ async function seedUsers(buildings: Ids): Promise<SeededUsers> {
       email: tech.email,
       fullName: tech.fullName,
       role: Role.TECHNICIAN,
-      phone: `07955000${10 + index}`,
+      phone: '0000000000',
       department: 'Maintenance',
       technicianProfile: {
         create: { skills: tech.skills, homeBuildingId: buildings[tech.home], maxOpenOrders: tech.maxOpenOrders, isAvailable: tech.isAvailable ?? true },
@@ -445,7 +445,7 @@ async function seedRequestsAndWorkOrders(buildings: Ids, rooms: Ids, assets: Ids
         roomId,
         assetId: asset?.id ?? null,
         preferredContact: random.pick(['IN_APP', 'EMAIL', 'PHONE'] as const),
-        contactDetail: random.chance(0.5) ? `07${random.int(70000000, 99999999)}` : null,
+        contactDetail: random.chance(0.5) ? '0000000000' : null,
         requesterId,
         createdAt,
         responseDueAt,

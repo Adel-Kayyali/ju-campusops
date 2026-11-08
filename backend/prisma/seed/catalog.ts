@@ -55,8 +55,8 @@ export const ROOMS: Record<string, { code: string; name: string; floor: number; 
 };
 
 export const MANAGERS = [
-  { email: 'manager@campusops.edu', fullName: 'Lina Haddad', phone: '0790000101' },
-  { email: 'manager2@campusops.edu', fullName: 'Omar Khalil', phone: '0790000102' },
+  { email: 'manager@campusops.edu', fullName: 'Lina Haddad', phone: '0000000000' },
+  { email: 'manager2@campusops.edu', fullName: 'Omar Khalil', phone: '0000000000' },
 ];
 
 export const TECHNICIANS: { email: string; fullName: string; skills: RequestCategory[]; home: string; maxOpenOrders: number; isAvailable?: boolean }[] = [
@@ -210,7 +210,7 @@ export const FEEDBACK_COMMENTS = [
 
 type Slot = [day: 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY', start: string, end: string, title: string, location: string];
 
-/** Fictional teachers. Lectures follow the usual Sun/Tue/Thu and Mon/Wed patterns. */
+/** Fictional teachers (phone numbers are deliberate placeholders: 0000000000). Lectures follow the usual Sun/Tue/Thu and Mon/Wed patterns. */
 export const TEACHERS: {
   email: string;
   fullName: string;
@@ -223,7 +223,7 @@ export const TEACHERS: {
   officeHours: Slot[];
 }[] = [
   {
-    email: 'teacher@campusops.edu', fullName: 'Hana Qudah', title: 'Dr.', department: 'Software Engineering', office: 'ITC 305-A', phone: '0796100201', status: 'FREE',
+    email: 'teacher@campusops.edu', fullName: 'Hana Qudah', title: 'Dr.', department: 'Software Engineering', office: 'ITC 305-A', phone: '0000000000', status: 'FREE',
     lectures: [
       ['SUNDAY', '08:30', '10:00', 'Software Engineering (Section 1)', 'ITC 201'], ['TUESDAY', '08:30', '10:00', 'Software Engineering (Section 1)', 'ITC 201'], ['THURSDAY', '08:30', '10:00', 'Software Engineering (Section 1)', 'ITC 201'],
       ['MONDAY', '11:30', '13:00', 'Software Requirements', 'ITC L2'], ['WEDNESDAY', '11:30', '13:00', 'Software Requirements', 'ITC L2'],
@@ -231,7 +231,7 @@ export const TEACHERS: {
     officeHours: [['SUNDAY', '11:00', '12:30', 'Office hours', 'ITC 305-A'], ['TUESDAY', '11:00', '12:30', 'Office hours', 'ITC 305-A'], ['WEDNESDAY', '13:30', '14:30', 'Office hours', 'ITC 305-A']],
   },
   {
-    email: 'teacher2@campusops.edu', fullName: 'Sami Haddadin', title: 'Prof.', department: 'Computer Science', office: 'ITC 312', phone: '0796100202', status: 'BUSY',
+    email: 'teacher2@campusops.edu', fullName: 'Sami Haddadin', title: 'Prof.', department: 'Computer Science', office: 'ITC 312', phone: '0000000000', status: 'BUSY',
     lectures: [
       ['MONDAY', '08:30', '10:00', 'Data Structures', 'ITC 201'], ['WEDNESDAY', '08:30', '10:00', 'Data Structures', 'ITC 201'],
       ['SUNDAY', '13:00', '14:00', 'Algorithms', 'ITC L1'], ['TUESDAY', '13:00', '14:00', 'Algorithms', 'ITC L1'], ['THURSDAY', '13:00', '14:00', 'Algorithms', 'ITC L1'],
@@ -239,7 +239,7 @@ export const TEACHERS: {
     officeHours: [['MONDAY', '10:30', '12:00', 'Office hours', 'ITC 312'], ['THURSDAY', '10:00', '11:30', 'Office hours', 'ITC 312']],
   },
   {
-    email: 'teacher3@campusops.edu', fullName: 'Rasha Alqaisi', title: 'Dr.', department: 'Electrical Engineering', office: 'ENG 214', phone: '0796100203', status: 'FREE',
+    email: 'teacher3@campusops.edu', fullName: 'Rasha Alqaisi', title: 'Dr.', department: 'Electrical Engineering', office: 'ENG 214', phone: '0000000000', status: 'FREE',
     lectures: [
       ['SUNDAY', '10:00', '11:30', 'Electric Circuits I', 'ENG 104'], ['TUESDAY', '10:00', '11:30', 'Electric Circuits I', 'ENG 104'], ['THURSDAY', '10:00', '11:30', 'Electric Circuits I', 'ENG 104'],
       ['MONDAY', '13:00', '16:00', 'Circuits Lab', 'ENG 101'],
@@ -247,17 +247,17 @@ export const TEACHERS: {
     officeHours: [['SUNDAY', '12:00', '13:30', 'Office hours', 'ENG 214'], ['WEDNESDAY', '10:00', '12:00', 'Office hours', 'ENG 214']],
   },
   {
-    email: 'teacher4@campusops.edu', fullName: 'Ziad Obeidat', title: 'Dr.', department: 'Chemistry', office: 'SCI 118', phone: '0796100204', status: 'FREE',
+    email: 'teacher4@campusops.edu', fullName: 'Ziad Obeidat', title: 'Dr.', department: 'Chemistry', office: 'SCI 118', phone: '0000000000', status: 'FREE',
     lectures: [['MONDAY', '10:00', '11:30', 'General Chemistry', 'SCI A10'], ['WEDNESDAY', '10:00', '11:30', 'General Chemistry', 'SCI A10'], ['TUESDAY', '12:00', '15:00', 'Organic Chemistry Lab', 'SCI CH1']],
     officeHours: [['SUNDAY', '09:00', '11:00', 'Office hours', 'SCI 118'], ['THURSDAY', '11:00', '12:00', 'Office hours', 'SCI 118']],
   },
   {
-    email: 'teacher5@campusops.edu', fullName: 'Nadia Rawashdeh', title: 'Prof.', department: 'Medicine', office: 'MED 402', phone: '0796100205', status: 'BUSY',
+    email: 'teacher5@campusops.edu', fullName: 'Nadia Rawashdeh', title: 'Prof.', department: 'Medicine', office: 'MED 402', phone: '0000000000', status: 'BUSY',
     lectures: [['SUNDAY', '08:00', '10:00', 'Human Anatomy', 'MED H01'], ['TUESDAY', '08:00', '10:00', 'Human Anatomy', 'MED H01'], ['WEDNESDAY', '12:00', '15:00', 'Anatomy Lab', 'MED AN1']],
     officeHours: [['MONDAY', '12:00', '13:30', 'Office hours', 'MED 402']],
   },
   {
-    email: 'teacher6@campusops.edu', fullName: 'Fadi Shdeifat', title: 'Eng.', department: 'Software Engineering', office: 'ITC 309', phone: '0796100206', status: 'FREE',
+    email: 'teacher6@campusops.edu', fullName: 'Fadi Shdeifat', title: 'Eng.', department: 'Software Engineering', office: 'ITC 309', phone: '0000000000', status: 'FREE',
     lectures: [['SUNDAY', '14:30', '16:00', 'Web Programming', 'ITC L1'], ['TUESDAY', '14:30', '16:00', 'Web Programming', 'ITC L1'], ['THURSDAY', '14:30', '16:00', 'Web Programming', 'ITC L1']],
     officeHours: [['MONDAY', '09:00', '10:30', 'Office hours', 'ITC 309'], ['WEDNESDAY', '09:00', '10:30', 'Office hours', 'ITC 309']],
   },
