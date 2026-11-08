@@ -262,3 +262,74 @@ export const TEACHERS: {
     officeHours: [['MONDAY', '09:00', '10:30', 'Office hours', 'ITC 309'], ['WEDNESDAY', '09:00', '10:30', 'Office hours', 'ITC 309']],
   },
 ];
+
+/**
+ * KASIT faculty: REAL NAMES AND TITLES ONLY. Everything else (e-mail on the fictional
+ * campusops.edu domain, phone, office, timetable, status) is generated demo data.
+ */
+const KASIT_FACULTY: { title: string; fullName: string; department: string }[] = [
+  { title: 'Dr.', fullName: 'Mohammed Salem Atoum', department: 'Computer Science' },
+  { title: 'Dr.', fullName: 'Mohammad S. Obaidat', department: 'Computer Science' },
+  { title: 'Prof.', fullName: 'Marwan Krunz', department: 'Computer Science' },
+  { title: 'Dr.', fullName: 'Azzam Sleit', department: 'Computer Science' },
+  { title: 'Dr.', fullName: 'Basel Ali Mahafzah', department: 'Computer Science' },
+  { title: 'Dr.', fullName: 'Sherenaz W. Al-Haj Baddar', department: 'Computer Science' },
+  { title: 'Dr.', fullName: "Moh'd Belal Al-Zoubi", department: 'Computer Information Systems' },
+  { title: 'Dr.', fullName: 'Bassam Hasan Hammo', department: 'Computer Information Systems' },
+  { title: 'Dr.', fullName: 'Amjad Hudaib', department: 'Computer Information Systems' },
+  { title: 'Dr.', fullName: 'Mousa Tawfiq AL-Akhras', department: 'Computer Information Systems' },
+  { title: 'Dr.', fullName: 'Esra Alzaghoul', department: 'Computer Information Systems' },
+  { title: 'Dr.', fullName: 'Rizik Al-Sayyed', department: 'Information Technology' },
+  { title: 'Dr.', fullName: 'Hamed Saqer Al-Bdour', department: 'Information Technology' },
+  { title: 'Dr.', fullName: 'Osama K. Harfoushi', department: 'Information Technology' },
+  { title: 'Dr.', fullName: 'Hossam Faris', department: 'Information Technology' },
+  { title: 'Dr.', fullName: 'Nadim Ali Meri Obeid', department: 'Artificial Intelligence' },
+  { title: 'Dr.', fullName: 'Omar Sultan Al-Kadi', department: 'Artificial Intelligence' },
+  { title: 'Dr.', fullName: 'Ibrahim Aljarah', department: 'Artificial Intelligence' },
+  { title: 'Dr.', fullName: 'Shadi Banitaan', department: 'Artificial Intelligence' },
+];
+
+const COURSES: Record<string, string[]> = {
+  'Computer Science': ['Data Structures', 'Algorithms', 'Operating Systems', 'Computer Networks', 'Theory of Computation', 'Compilers'],
+  'Computer Information Systems': ['Database Systems', 'Systems Analysis and Design', 'Information Retrieval', 'Web Information Systems', 'E-Business'],
+  'Information Technology': ['Cloud Computing', 'Network Administration', 'Information Security', 'Mobile Application Development', 'IT Project Management'],
+  'Artificial Intelligence': ['Machine Learning', 'Deep Learning', 'Natural Language Processing', 'Computer Vision', 'Evolutionary Computation'],
+};
+
+const MWF_SLOTS: [string, string][] = [['08:00', '09:30'], ['09:30', '11:00'], ['11:00', '12:30'], ['12:30', '14:00'], ['14:00', '15:30']];
+
+/** Builds a fictional but realistic timetable: two courses (Sun/Tue/Thu + Mon/Wed) and two office-hour slots. */
+function generatedTeacher(member: (typeof KASIT_FACULTY)[number], index: number): (typeof TEACHERS)[number] {
+  const courses = COURSES[member.department];
+  const first = courses[index % courses.length];
+  const second = courses[(index + 2) % courses.length];
+  const a = MWF_SLOTS[index % MWF_SLOTS.length];
+  const b = MWF_SLOTS[(index + 2) % MWF_SLOTS.length];
+  const oh = MWF_SLOTS[(index + 1) % MWF_SLOTS.length];
+  const room = `ITC ${100 + ((index * 7) % 30)}`;
+  const office = `ITC ${300 + index}`;
+  const slug = member.fullName.toLowerCase().replace(/[^a-z\s-]/g, '').trim().split(/\s+/);
+  return {
+    email: `${slug[0]}.${slug[slug.length - 1]}@campusops.edu`,
+    fullName: member.fullName,
+    title: member.title,
+    department: member.department,
+    office,
+    phone: '0000000000',
+    status: index % 3 === 0 ? 'BUSY' : 'FREE',
+    lectures: [
+      ['SUNDAY', a[0], a[1], first, room],
+      ['TUESDAY', a[0], a[1], first, room],
+      ['THURSDAY', a[0], a[1], first, room],
+      ['MONDAY', b[0], b[1], second, room],
+      ['WEDNESDAY', b[0], b[1], second, room],
+    ],
+    officeHours: [
+      ['SUNDAY', oh[0], oh[1], 'Office hours', office],
+      ['WEDNESDAY', oh[0], oh[1], 'Office hours', office],
+    ],
+  };
+}
+
+/** Faculty with real names and generated (fictional) details. */
+export const NAMED_TEACHERS = KASIT_FACULTY.map(generatedTeacher);

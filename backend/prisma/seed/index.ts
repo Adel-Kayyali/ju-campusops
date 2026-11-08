@@ -46,6 +46,7 @@ import {
   ROOMS,
   SCHEDULES,
   STAFF,
+  NAMED_TEACHERS,
   TEACHERS,
   TECHNICIANS,
   studentNames,
@@ -171,7 +172,7 @@ async function seedUsers(buildings: Ids): Promise<SeededUsers> {
   // one deactivated student, to show account management
   await prisma.user.update({ where: { id: students[29].id }, data: { isActive: false } });
 
-  for (const teacher of TEACHERS) {
+  for (const teacher of [...TEACHERS, ...NAMED_TEACHERS]) {
     await create({
       email: teacher.email,
       fullName: teacher.fullName,
