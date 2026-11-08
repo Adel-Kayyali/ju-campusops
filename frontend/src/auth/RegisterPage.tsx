@@ -11,7 +11,7 @@ import { passwordError } from './passwordPolicy';
 import type { RegisterInput } from './types';
 
 /**
- * Self-service sign-up for students and staff. There is no e-mail verification:
+ * Self-service sign-up for students, staff and teachers. There is no e-mail verification:
  * the account works immediately and the user is signed in straight away.
  */
 export function RegisterPage() {
@@ -49,7 +49,8 @@ export function RegisterPage() {
         phone: values.phone?.trim() || undefined,
       });
       notify.success(`Your account is ready. Welcome, ${user.fullName.split(' ')[0]}!`, 'Account created');
-      navigate('/', { replace: true });
+      // Teachers go straight to their profile to add their timetable and office hours.
+      navigate(user.role === 'TEACHER' ? '/my-teacher-profile' : '/', { replace: true });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -89,6 +90,7 @@ export function RegisterPage() {
                   fullWidth
                   data={[
                     { value: 'STUDENT', label: 'Student' },
+                    { value: 'TEACHER', label: 'Teacher' },
                     { value: 'STAFF', label: 'Staff member' },
                   ]}
                   {...form.getInputProps('accountType')}
@@ -119,7 +121,7 @@ export function RegisterPage() {
             </Anchor>
           </Text>
           <Text size="xs" c="dimmed" ta="center">
-            Teachers, technicians and administrators receive their accounts from the system administrator.
+            Technicians, facility managers and administrators receive their accounts from the system administrator.
           </Text>
         </Stack>
       </Paper>

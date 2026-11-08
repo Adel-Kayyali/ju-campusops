@@ -26,7 +26,7 @@ export class ChangePasswordDto {
 }
 
 /** Roles anyone may choose when signing up. Other roles are created by an administrator. */
-export const SELF_REGISTRATION_ROLES = [Role.STUDENT, Role.STAFF] as const;
+export const SELF_REGISTRATION_ROLES = [Role.STUDENT, Role.STAFF, Role.TEACHER] as const;
 export type SelfRegistrationRole = (typeof SELF_REGISTRATION_ROLES)[number];
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);

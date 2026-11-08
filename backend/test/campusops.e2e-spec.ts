@@ -119,9 +119,37 @@ describe('CampusOps API (e2e)', () => {
       expect(response.body.code).toBe('PASSWORD_MISMATCH');
     });
 
+    it('lets a teacher sign up and use his own teacher profile at once', async () => {
+      const response = await request(http)
+        .post('/api/auth/register')
+        .send({ ...valid, accountType: 'TEACHER', email: `teacher.${unique}@campusops.edu`, universityId: undefined, department: 'Mathematics' })
+        .expect(201);
+      expect(response.body.user.role).toBe('TEACHER');
+      const profile = await request(http).get('/api/teachers/me').set('Authorization', `Bearer ${response.body.accessToken}`).expect(200);
+      expect(profile.body.department).toBe('Mathematics');
+    });
+
     it('does not allow choosing a privileged role', async () => {
-      await request(http).post('/api/auth/register').send({ ...valid, email: `admin.${unique}@campusops.edu`, accountType: 'ADMIN' }).expect(400);
-      await request(http).post('/api/auth/register').send({ ...valid, email: `teacher.${unique}@campusops.edu`, accountType: 'TEACHER' }).expect(400);
+      for (const accountType of ['ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN']) {
+        await request(http).post('/api/auth/register').send({ ...valid, email: `${accountType}.${unique}@campusops.edu`, accountType }).expect(400);
+      }
+    });
+  });
+
+  describe('changing a user type', () => {
+    it('is reserved to the administrator', async () => {
+      const admin = await login('admin@campusops.edu');
+      const users = await request(http).get('/api/users?search=staff4@campusops.edu').set('Authorization', `Bearer ${admin}`).expect(200);
+      const staffId = users.body.content[0].id as string;
+
+      for (const email of ['manager@campusops.edu', 'teacher@campusops.edu', 'staff4@campusops.edu']) {
+        const token = await login(email);
+        await request(http).patch(`/api/users/${staffId}`).set('Authorization', `Bearer ${token}`).send({ role: 'ADMIN' }).expect(403);
+      }
+
+      const changed = await request(http).patch(`/api/users/${staffId}`).set('Authorization', `Bearer ${admin}`).send({ role: 'TEACHER' }).expect(200);
+      expect(changed.body.role).toBe('TEACHER');
+      await request(http).patch(`/api/users/${staffId}`).set('Authorization', `Bearer ${admin}`).send({ role: 'STAFF' }).expect(200);
     });
   });
 

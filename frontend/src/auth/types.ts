@@ -12,9 +12,9 @@ export interface CurrentUser {
   createdAt: string;
 }
 
-/** Sign-up form / API body. Only students and staff can register themselves. */
+/** Sign-up form / API body. Students, staff and teachers can register themselves. */
 export interface RegisterInput {
-  accountType: 'STUDENT' | 'STAFF';
+  accountType: 'STUDENT' | 'STAFF' | 'TEACHER';
   fullName: string;
   email: string;
   universityId?: string;

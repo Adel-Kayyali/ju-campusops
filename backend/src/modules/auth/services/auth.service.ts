@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   /**
-   * Self-service sign-up (students and staff only). No e-mail verification:
+   * Self-service sign-up (students, staff and teachers). No e-mail verification:
    * the account is active at once and the user is logged in immediately.
    */
   @Transactional()
@@ -69,6 +69,8 @@ export class AuthService {
       department: dto.department || null,
       phone: dto.phone || null,
       passwordHash: await this.passwordHasher.hashNewPassword(dto.password, { email: dto.email }),
+      // A teacher starts with an empty public profile (department copied from the form).
+      teacherProfile: dto.accountType === Role.TEACHER ? { create: { department: dto.department || null } } : undefined,
     });
     await this.auditService.record({ actorId: user.id, action: AuditAction.USER_REGISTERED, entityType: 'User', entityId: user.id, details: { email: user.email, role: user.role } });
 

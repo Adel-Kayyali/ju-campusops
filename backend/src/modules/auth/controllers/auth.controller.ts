@@ -23,7 +23,7 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  /** Self-service sign-up for students and staff (rate-limited like login). Returns a logged-in session. */
+  /** Self-service sign-up for students, staff and teachers (rate-limited like login). Returns a logged-in session. */
   @Public()
   @UseGuards(ThrottlerGuard)
   @ApiTooManyRequestsResponse({ description: 'Too many attempts' })
