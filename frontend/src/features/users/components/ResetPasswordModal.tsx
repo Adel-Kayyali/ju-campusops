@@ -1,5 +1,7 @@
 import { Button, Group, Modal, PasswordInput, Stack, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
+import { PasswordChecklist } from '@/auth/PasswordChecklist';
+import { isStrongPassword } from '@/auth/passwordPolicy';
 import { notify } from '@/shared/utils/notify';
 import { usersApi, useUserMutation, type User } from '../api';
 
@@ -14,13 +16,14 @@ export function ResetPasswordModal({ user, onClose }: { user: User | null; onClo
         <Text size="sm">
           Set a new password for <b>{user?.fullName}</b> and give it to them in person.
         </Text>
-        <PasswordInput label="New password" description="At least 8 characters" value={password} onChange={(e) => setPassword(e.currentTarget.value)} />
+        <PasswordInput label="New password" value={password} onChange={(e) => setPassword(e.currentTarget.value)} />
+        <PasswordChecklist password={password} email={user?.email} />
         <Group justify="flex-end">
           <Button variant="default" onClick={onClose}>
             Cancel
           </Button>
           <Button
-            disabled={password.length < 8}
+            disabled={!isStrongPassword(password, user?.email ?? '')}
             loading={reset.isPending}
             onClick={() =>
               reset.mutate(password, {

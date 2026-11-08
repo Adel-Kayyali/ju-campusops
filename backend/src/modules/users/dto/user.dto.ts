@@ -19,7 +19,7 @@ export class CreateUserDto {
   @Transform(trim) @IsEmail() email: string;
   @Transform(trim) @IsString() @IsNotEmpty() @MaxLength(120) fullName: string;
   @IsEnum(Role) role: Role;
-  @IsString() @MinLength(8) @MaxLength(100) password: string;
+  @IsString() @MaxLength(200) password: string;
   @IsOptional() @Transform(trim) @Matches(/^[0-9A-Za-z-]{4,20}$/, { message: 'universityId must be 4-20 letters/digits' }) universityId?: string;
   @IsOptional() @Transform(trim) @IsString() @MaxLength(30) phone?: string;
   @IsOptional() @Transform(trim) @IsString() @MaxLength(120) department?: string;
@@ -38,7 +38,7 @@ export class UpdateUserStatusDto {
 }
 
 export class ResetPasswordDto {
-  @IsString() @MinLength(8) @MaxLength(100) newPassword: string;
+  @IsString() @MaxLength(200) newPassword: string;
 }
 
 export class UserResponseDto {

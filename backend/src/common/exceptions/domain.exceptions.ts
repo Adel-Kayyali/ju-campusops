@@ -44,6 +44,13 @@ export class InvalidStateTransitionException extends BusinessRuleViolationExcept
   }
 }
 
+/** 422 - the chosen password does not follow the password rules. */
+export class WeakPasswordException extends BusinessRuleViolationException {
+  constructor(problems: string[]) {
+    super(`The password is not strong enough: ${problems.join('; ')}`, 'WEAK_PASSWORD', { problems });
+  }
+}
+
 /** 409 - the operation conflicts with existing data (duplicates, overlaps...). */
 export class ResourceConflictException extends DomainException {
   readonly httpStatus = HttpStatus.CONFLICT;

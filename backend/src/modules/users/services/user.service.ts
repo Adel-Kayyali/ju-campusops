@@ -79,7 +79,7 @@ export class UserService {
       universityId: dto.universityId || null,
       phone: dto.phone || null,
       department: dto.department || null,
-      passwordHash: await this.passwordHasher.hash(dto.password),
+      passwordHash: await this.passwordHasher.hashNewPassword(dto.password, { email }),
       technicianProfile: dto.role === Role.TECHNICIAN ? { create: { skills: [] } } : undefined,
       teacherProfile: dto.role === Role.TEACHER ? { create: {} } : undefined,
     });
@@ -134,8 +134,8 @@ export class UserService {
 
   @Transactional()
   async resetPassword(id: string, dto: ResetPasswordDto, actorId: string): Promise<void> {
-    await this.getById(id);
-    await this.repository.update(id, { passwordHash: await this.passwordHasher.hash(dto.newPassword) });
+    const user = await this.getById(id);
+    await this.repository.update(id, { passwordHash: await this.passwordHasher.hashNewPassword(dto.newPassword, { email: user.email }) });
     await this.repository.revokeSessions(id);
     await this.auditService.record({ actorId, action: AuditAction.USER_PASSWORD_RESET, entityType: 'User', entityId: id });
   }
@@ -147,7 +147,7 @@ export class UserService {
     if (!(await this.passwordHasher.matches(currentPassword, user.passwordHash))) {
       throw new BusinessRuleViolationException('The current password is incorrect', 'WRONG_PASSWORD');
     }
-    await this.repository.update(id, { passwordHash: await this.passwordHasher.hash(newPassword) });
+    await this.repository.update(id, { passwordHash: await this.passwordHasher.hashNewPassword(newPassword, { email: user.email }) });
     await this.repository.revokeSessions(id);
   }
 }

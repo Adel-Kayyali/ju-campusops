@@ -82,6 +82,49 @@ describe('CampusOps API (e2e)', () => {
     });
   });
 
+  describe('sign-up', () => {
+    const unique = Date.now();
+    const valid = {
+      accountType: 'STUDENT',
+      fullName: 'New Student',
+      email: `new.student.${unique}@campusops.edu`,
+      universityId: `9${String(unique).slice(-6)}`,
+      password: 'Campus#2026x',
+      confirmPassword: 'Campus#2026x',
+    };
+
+    it('creates a student account and logs the user in immediately', async () => {
+      const response = await request(http).post('/api/auth/register').send(valid).expect(201);
+      expect(response.body.user.role).toBe('STUDENT');
+      await request(http).get('/api/auth/me').set('Authorization', `Bearer ${response.body.accessToken}`).expect(200);
+      await request(http).post('/api/auth/login').send({ email: valid.email, password: valid.password }).expect(200);
+    });
+
+    it('rejects a duplicate e-mail', async () => {
+      const response = await request(http).post('/api/auth/register').send({ ...valid, universityId: '8888888' }).expect(409);
+      expect(response.body.code).toBe('EMAIL_TAKEN');
+    });
+
+    it('rejects a weak password and lists the broken rules', async () => {
+      const response = await request(http)
+        .post('/api/auth/register')
+        .send({ ...valid, email: `weak.${unique}@campusops.edu`, universityId: '7777771', password: 'password', confirmPassword: 'password' })
+        .expect(422);
+      expect(response.body.code).toBe('WEAK_PASSWORD');
+      expect((response.body.details.problems as string[]).length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('rejects passwords that do not match', async () => {
+      const response = await request(http).post('/api/auth/register').send({ ...valid, email: `mismatch.${unique}@campusops.edu`, universityId: '7777772', confirmPassword: 'Campus#2026y' }).expect(422);
+      expect(response.body.code).toBe('PASSWORD_MISMATCH');
+    });
+
+    it('does not allow choosing a privileged role', async () => {
+      await request(http).post('/api/auth/register').send({ ...valid, email: `admin.${unique}@campusops.edu`, accountType: 'ADMIN' }).expect(400);
+      await request(http).post('/api/auth/register').send({ ...valid, email: `teacher.${unique}@campusops.edu`, accountType: 'TEACHER' }).expect(400);
+    });
+  });
+
   describe('teachers directory', () => {
     it('lets a teacher toggle his own status, and everyone see it', async () => {
       const teacher = await login('teacher@campusops.edu');

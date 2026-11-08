@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router';
 import { RequireAuth, RequireRole } from '@/auth/guards';
 import { LoginPage } from '@/auth/LoginPage';
+import { RegisterPage } from '@/auth/RegisterPage';
 import { RoleGroups } from '@/auth/roles';
 import { AssetDetailPage } from '@/features/assets/pages/AssetDetailPage';
 import { AssetListPage } from '@/features/assets/pages/AssetListPage';
@@ -31,6 +32,7 @@ import { NotFoundPage } from '@/shared/components/NotFoundPage';
  */
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
   {
     element: <RequireAuth />,
     children: [

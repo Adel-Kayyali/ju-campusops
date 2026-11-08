@@ -5,7 +5,7 @@ import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
 import { AuthenticatedUser } from '../../../common/types/authenticated-user';
 import { UserResponseDto } from '../../users/dto/user.dto';
-import { ChangePasswordDto, LoginDto, LoginResponseDto } from '../dto/auth.dto';
+import { ChangePasswordDto, LoginDto, LoginResponseDto, RegisterDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 
 @ApiTags('Authentication')
@@ -21,6 +21,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(dto);
+  }
+
+  /** Self-service sign-up for students and staff (rate-limited like login). Returns a logged-in session. */
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @ApiTooManyRequestsResponse({ description: 'Too many attempts' })
+  @Post('register')
+  register(@Body() dto: RegisterDto): Promise<LoginResponseDto> {
+    return this.authService.register(dto);
   }
 
   /** Ends the session on every device (all existing tokens of the user become invalid). */

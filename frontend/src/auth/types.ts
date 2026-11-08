@@ -12,6 +12,18 @@ export interface CurrentUser {
   createdAt: string;
 }
 
+/** Sign-up form / API body. Only students and staff can register themselves. */
+export interface RegisterInput {
+  accountType: 'STUDENT' | 'STAFF';
+  fullName: string;
+  email: string;
+  universityId?: string;
+  department?: string;
+  phone?: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export interface LoginResponse {
   accessToken: string;
   tokenType: 'Bearer';

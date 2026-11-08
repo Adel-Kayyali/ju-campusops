@@ -1,8 +1,8 @@
-import { Alert, Box, Button, Center, Group, Paper, PasswordInput, Stack, Text, TextInput, ThemeIcon, Title } from '@mantine/core';
+import { Alert, Anchor, Box, Button, Center, Group, Paper, PasswordInput, Stack, Text, TextInput, ThemeIcon, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconBuildingCommunity } from '@tabler/icons-react';
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { errorMessage } from '@/api/apiError';
 import { useAuth } from './AuthContext';
 
@@ -71,6 +71,12 @@ export function LoginPage() {
               </Button>
             </Stack>
           </form>
+          <Text size="sm" ta="center">
+            New to CampusOps?{' '}
+            <Anchor component={Link} to="/register">
+              Create an account
+            </Anchor>
+          </Text>
 
         </Stack>
       </Paper>

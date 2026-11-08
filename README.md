@@ -17,6 +17,7 @@ is tracked against service-level targets. The facilities office also manages pai
 | Student lockers | Grid/table of every locker with status and occupant; filters; subscriptions (from–to dates or 1–4 month presets), cash receipts, extend / end, out of service; students see their own lockers |
 | SLA, dashboards & audit | Priority matrix, escalation of overdue requests, KPI dashboards, performance reports, full audit trail, role-based access |
 | Teachers directory | Every teacher keeps a profile (title, department, office, contact), a weekly timetable of lectures and office hours, and a one-click **Free / Busy** status that only the teacher can change; everyone can search teachers and see their status, today's timetable and what they are doing right now |
+| Accounts & security | Self-service **sign-up** for students and staff (no e-mail verification needed; signed in immediately), password rules with a live checklist, login rate limiting, server-side logout, role-based access; teachers, technicians, managers and admins are created by the administrator |
 
 ## Live demo
 
@@ -197,6 +198,9 @@ To reset the demo data to its original state at any time, run `npm run db:seed` 
 ### Demo accounts
 
 All demo users are fictional. Password for every account: **`Password123!`**
+You can also create your own student or staff account with **Create an account** on the login page.
+
+Passwords must have 8–72 characters, with a lowercase letter, an uppercase letter, a number and a symbol, no spaces, and must not contain the e-mail name.
 
 | Role | E-mail |
 |---|---|

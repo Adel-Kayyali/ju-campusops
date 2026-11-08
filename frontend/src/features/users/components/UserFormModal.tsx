@@ -1,6 +1,7 @@
 import { Button, Group, Modal, PasswordInput, Select, SimpleGrid, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useEffect } from 'react';
+import { passwordError } from '@/auth/passwordPolicy';
 import { ROLES, type Role } from '@/shared/types/enums';
 import { toOptions } from '@/shared/utils/labels';
 import { notify } from '@/shared/utils/notify';
@@ -26,7 +27,7 @@ export function UserFormModal({ opened, user, onClose }: { opened: boolean; user
     validate: {
       email: (v) => (isEdit || /^\S+@\S+\.\S+$/.test(v) ? null : 'Enter a valid email'),
       fullName: (v) => (v.trim() ? null : 'Required'),
-      password: (v) => (isEdit || v.length >= 8 ? null : 'At least 8 characters'),
+      password: (v, values) => (isEdit ? null : passwordError(v, values.email.trim())),
       universityId: (v, values) =>
         values.role === 'STUDENT' && !v.trim() ? 'Students must have a university ID' : v && !/^[0-9A-Za-z-]{4,20}$/.test(v) ? '4-20 letters or digits' : null,
     },

@@ -4,17 +4,19 @@ import { useMutation } from '@tanstack/react-query';
 import { notify } from '@/shared/utils/notify';
 import { useAuth } from './AuthContext';
 import { authApi } from './authApi';
+import { PasswordChecklist } from './PasswordChecklist';
+import { passwordError } from './passwordPolicy';
 
 export function ChangePasswordModal({ opened, onClose }: { opened: boolean; onClose: () => void }) {
+  const { logout, user } = useAuth();
   const form = useForm({
     initialValues: { currentPassword: '', newPassword: '', confirm: '' },
     validate: {
       currentPassword: (v) => (v ? null : 'Required'),
-      newPassword: (v) => (v.length >= 8 ? null : 'At least 8 characters'),
+      newPassword: (v) => passwordError(v, user?.email ?? ''),
       confirm: (v, values) => (v === values.newPassword ? null : 'Passwords do not match'),
     },
   });
-  const { logout } = useAuth();
   const mutation = useMutation({
     mutationFn: (values: typeof form.values) => authApi.changePassword(values.currentPassword, values.newPassword),
     onSuccess: () => {
@@ -34,6 +36,7 @@ export function ChangePasswordModal({ opened, onClose }: { opened: boolean; onCl
           <PasswordInput label="Current password" {...form.getInputProps('currentPassword')} />
           <PasswordInput label="New password" {...form.getInputProps('newPassword')} />
           <PasswordInput label="Confirm new password" {...form.getInputProps('confirm')} />
+          <PasswordChecklist password={form.values.newPassword} email={user?.email} />
           <Group justify="flex-end">
             <Button variant="default" onClick={onClose}>
               Cancel

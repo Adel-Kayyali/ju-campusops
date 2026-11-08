@@ -4,12 +4,14 @@ import type { Role } from '@/shared/types/enums';
 import { authApi } from './authApi';
 import { hasAnyRole } from './roles';
 import { sessionStore, UNAUTHORIZED_EVENT, type Session } from './sessionStorage';
-import type { CurrentUser } from './types';
+import type { CurrentUser, LoginResponse, RegisterInput } from './types';
 
 interface AuthContextValue {
   user: CurrentUser | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<CurrentUser>;
+  /** Creates the account and signs the user in. */
+  register: (input: RegisterInput) => Promise<CurrentUser>;
   logout: () => void;
   hasRole: (...roles: Role[]) => boolean;
 }
@@ -54,23 +56,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch(() => undefined);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const response = await authApi.login(email, password);
+  const startSession = useCallback((response: LoginResponse) => {
     const newSession = { accessToken: response.accessToken, user: response.user };
     sessionStore.save(newSession);
     setSession(newSession);
     return response.user;
   }, []);
 
+  const login = useCallback(async (email: string, password: string) => startSession(await authApi.login(email, password)), [startSession]);
+  const register = useCallback(async (input: RegisterInput) => startSession(await authApi.register(input)), [startSession]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session?.user ?? null,
       isAuthenticated: session !== null,
       login,
+      register,
       logout,
       hasRole: (...roles: Role[]) => hasAnyRole(session?.user.role, roles),
     }),
-    [session, login, logout],
+    [session, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -13,6 +13,10 @@ export class UserRepository extends BaseRepository {
     return this.db.user.findUnique({ where: { id } });
   }
 
+  findByUniversityId(universityId: string): Promise<User | null> {
+    return this.db.user.findUnique({ where: { universityId } });
+  }
+
   findByEmail(email: string): Promise<User | null> {
     return this.db.user.findUnique({ where: { email: email.toLowerCase() } });
   }
